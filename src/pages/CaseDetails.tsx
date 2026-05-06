@@ -14,7 +14,7 @@ const getHearingStatus = (dateStr: string) => {
   today.setHours(0, 0, 0, 0);
   const hearing = new Date(dateStr);
   const diffDays = Math.ceil((hearing.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-  if (diffDays <= 0)  return { label: 'Overdue',              cls: 'bg-slate-100 text-slate-500 border-slate-200' };
+  if (diffDays <= 0)  return { label: 'Overdue',              cls: 'bg-[var(--bg-surface)] text-[var(--text-secondary)] border-[var(--border-primary)]' };
   if (diffDays <= 2)  return { label: `URGENT · ${diffDays}d`, cls: 'bg-red-50 text-red-600 border-red-200' };
   if (diffDays <= 5)  return { label: `SOON · ${diffDays}d`,   cls: 'bg-amber-50 text-amber-600 border-amber-200' };
   return { label: `${diffDays} days away`, cls: 'bg-emerald-50 text-emerald-600 border-emerald-200' };
@@ -52,7 +52,7 @@ const CaseDetails: React.FC = () => {
   // ── Loading ───────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F8F9FB] flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center">
         <Loader2 size={32} className="text-[#C9A84C] animate-spin" />
       </div>
     );
@@ -61,17 +61,17 @@ const CaseDetails: React.FC = () => {
   // ── Not found ─────────────────────────────────────────────
   if (notFound) {
     return (
-      <div className="min-h-screen bg-[#F8F9FB] flex flex-col items-center justify-center px-6 text-center">
-        <div className="w-20 h-20 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center mb-6">
-          <AlertCircle size={36} className="text-slate-200" />
+      <div className="min-h-screen bg-[var(--bg-primary)] flex flex-col items-center justify-center px-6 text-center">
+        <div className="w-20 h-20 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)] shadow-sm flex items-center justify-center mb-6">
+          <AlertCircle size={36} className="text-[var(--text-muted)]" />
         </div>
-        <h2 className="text-xl font-black text-[#111] mb-2">Case Not Found</h2>
-        <p className="text-slate-400 font-medium mb-8">
+        <h2 className="text-xl font-black text-[var(--text-primary)] mb-2">Case Not Found</h2>
+        <p className="text-[var(--text-muted)] font-medium mb-8">
           This case may have been deleted or the link is incorrect.
         </p>
         <button
           onClick={() => navigate('/my-cases')}
-          className="px-8 py-3 bg-[#111] text-white text-sm font-black rounded-xl hover:bg-black transition-all"
+          className="px-8 py-3 bg-[var(--btn-primary-bg)] text-[var(--btn-primary-text)] text-sm font-black rounded-xl hover:bg-[var(--btn-primary-hover)] transition-all"
         >
           ← My Cases
         </button>
@@ -85,24 +85,24 @@ const CaseDetails: React.FC = () => {
 
   // ── Case detail rows ───────────────────────────────────────
   const rows = [
-    { icon: <FileText size={16} className="text-[#C9A84C]" />, label: 'IPC Section',    value: `§${ipcShort}` },
+    { icon: <FileText size={16} className="text-[#C9A84C]" />, label: 'IPC Section',    value: ipcShort },
     { icon: <Scale     size={16} className="text-[#C9A84C]" />, label: 'Offense / Crime', value: caseData.offense },
     { icon: <Gavel     size={16} className="text-[#C9A84C]" />, label: 'Court',          value: caseData.court },
     { icon: <Clock     size={16} className="text-[#C9A84C]" />, label: 'Saved On',       value: new Date(caseData.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) },
   ];
 
   return (
-    <div className="min-h-screen bg-[#F8F9FB] w-full pb-20">
+    <div className="min-h-screen bg-[var(--bg-primary)] w-full pb-20">
 
       {/* PAGE HEADER */}
-      <div className="border-b border-slate-100 bg-white px-6 py-14">
+      <div className="border-b border-[var(--border-subtle)] bg-[var(--bg-secondary)] px-6 py-14">
         <div className="max-w-3xl mx-auto">
           <span className="text-[10px] font-black uppercase tracking-[4px] text-[#C9A84C]">Workspace</span>
           <div className="mt-4 flex items-center justify-between gap-4">
-            <h1 className="text-4xl font-serif font-black text-[#111]">Case Details</h1>
+            <h1 className="text-4xl font-serif font-black text-[var(--text-primary)]">Case Details</h1>
             <button
               onClick={() => navigate('/my-cases')}
-              className="flex items-center gap-2 text-sm font-bold text-slate-400 hover:text-[#111] transition-colors shrink-0"
+              className="flex items-center gap-2 text-sm font-bold text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors shrink-0"
             >
               <ArrowLeft size={18} /> My Cases
             </button>
@@ -116,7 +116,7 @@ const CaseDetails: React.FC = () => {
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden"
+          className="bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border-subtle)] shadow-sm overflow-hidden"
         >
           {/* Top stripe */}
           <div className={`h-1.5 w-full ${isGranted ? 'bg-emerald-400' : 'bg-red-400'}`} />
@@ -127,7 +127,7 @@ const CaseDetails: React.FC = () => {
               <span className={`text-3xl font-black ${isGranted ? 'text-emerald-600' : 'text-red-500'}`}>
                 {Math.round(caseData.bail_probability ?? 0)}%
               </span>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mt-0.5">confidence</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mt-0.5">confidence</span>
             </div>
 
             <div className="flex-1">
@@ -139,7 +139,7 @@ const CaseDetails: React.FC = () => {
                   Bail {caseData.likelihood}
                 </span>
               </div>
-              <p className="text-sm text-slate-400 font-medium">
+              <p className="text-sm text-[var(--text-muted)] font-medium">
                 AI-predicted outcome based on case parameters.
               </p>
 
@@ -158,16 +158,16 @@ const CaseDetails: React.FC = () => {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.08 }}
-          className="bg-white rounded-2xl border border-slate-100 shadow-sm divide-y divide-slate-50"
+          className="bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border-subtle)] shadow-sm divide-y divide-slate-50"
         >
           {rows.map(({ icon, label, value }) => (
             <div key={label} className="flex items-center gap-4 px-8 py-5">
-              <div className="w-8 h-8 rounded-lg bg-[#F8F9FB] border border-slate-100 flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-subtle)] flex items-center justify-center shrink-0">
                 {icon}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-0.5">{label}</p>
-                <p className="text-sm font-bold text-[#111] truncate">{value || '—'}</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] mb-0.5">{label}</p>
+                <p className="text-sm font-bold text-[var(--text-primary)] truncate">{value || '—'}</p>
               </div>
             </div>
           ))}
@@ -175,12 +175,12 @@ const CaseDetails: React.FC = () => {
           {/* Hearing date row */}
           {caseData.hearing_date && (
             <div className="flex items-center gap-4 px-8 py-5">
-              <div className="w-8 h-8 rounded-lg bg-[#F8F9FB] border border-slate-100 flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-subtle)] flex items-center justify-center shrink-0">
                 <Calendar size={16} className="text-[#C9A84C]" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-0.5">Hearing Date</p>
-                <p className="text-sm font-bold text-[#111]">
+                <p className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] mb-0.5">Hearing Date</p>
+                <p className="text-sm font-bold text-[var(--text-primary)]">
                   {new Date(caseData.hearing_date).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                 </p>
               </div>
@@ -190,12 +190,12 @@ const CaseDetails: React.FC = () => {
           {/* Case description */}
           {caseData.case_description && (
             <div className="flex items-start gap-4 px-8 py-5">
-              <div className="w-8 h-8 rounded-lg bg-[#F8F9FB] border border-slate-100 flex items-center justify-center shrink-0 mt-0.5">
+              <div className="w-8 h-8 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-subtle)] flex items-center justify-center shrink-0 mt-0.5">
                 <FileText size={16} className="text-[#C9A84C]" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-0.5">Case Description</p>
-                <p className="text-sm font-medium text-slate-600 leading-relaxed">{caseData.case_description}</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] mb-0.5">Case Description</p>
+                <p className="text-sm font-medium text-[var(--text-secondary)] leading-relaxed">{caseData.case_description}</p>
               </div>
             </div>
           )}
@@ -217,13 +217,13 @@ const CaseDetails: React.FC = () => {
                 court: caseData.court,
               }
             })}
-            className="flex-1 h-12 bg-[#111] text-white text-sm font-black rounded-xl flex items-center justify-center gap-2 hover:bg-black hover:scale-[1.01] transition-all shadow-lg shadow-black/10"
+            className="flex-1 h-12 bg-[var(--btn-primary-bg)] text-[var(--btn-primary-text)] text-sm font-black rounded-xl flex items-center justify-center gap-2 hover:bg-[var(--btn-primary-hover)] hover:scale-[1.01] transition-all shadow-lg shadow-black/10"
           >
             Re-run Prediction →
           </button>
           <button
             onClick={() => navigate('/my-cases')}
-            className="flex-1 h-12 border border-slate-200 text-[#111] text-sm font-black rounded-xl flex items-center justify-center gap-2 hover:border-[#111] transition-all"
+            className="flex-1 h-12 border border-[var(--border-primary)] text-[var(--text-primary)] text-sm font-black rounded-xl flex items-center justify-center gap-2 hover:border-[var(--btn-primary-bg)] transition-all"
           >
             ← Back to My Cases
           </button>

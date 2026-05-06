@@ -9,15 +9,20 @@ import IPCGuide from './pages/IPCGuide';
 import BailApplication from './pages/BailApplication';
 import MyDrafts from './pages/MyDrafts';
 import CaseDetails from './pages/CaseDetails';
+import HearingCalendar from './pages/HearingCalendar';
+import BailHeatmap from './pages/BailHeatmap';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
+
+import ErrorBoundary from './components/ErrorBoundary';
 
 function App() {
   return (
     <AuthProvider>
       <Router>
-        <Routes>
-          <Route path="/" element={<Layout />}>
+        <ErrorBoundary>
+          <Routes>
+            <Route path="/" element={<Layout />}>
             <Route index element={<Dashboard />} />
             <Route path="predict" element={<Predict />} />
             <Route path="ipc-guide" element={<IPCGuide />} />
@@ -42,11 +47,16 @@ function App() {
             <Route path="my-drafts" 
               element={<ProtectedRoute><MyDrafts /></ProtectedRoute>} 
             />
+            <Route path="calendar" 
+              element={<ProtectedRoute><HearingCalendar /></ProtectedRoute>} 
+            />
+            <Route path="bail-map" element={<BailHeatmap />} />
             <Route path="case/:id" element={<CaseDetails />} />
           </Route>
         </Routes>
-      </Router>
-    </AuthProvider>
+      </ErrorBoundary>
+    </Router>
+  </AuthProvider>
   );
 }
 

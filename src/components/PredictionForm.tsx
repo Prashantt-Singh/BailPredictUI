@@ -42,15 +42,15 @@ const PredictionForm: React.FC<PredictionFormProps> = ({ onSubmit, isLoading }) 
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-darkSurface border border-slate-700 p-8 rounded-2xl shadow-xl w-full max-w-2xl">
-      <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+    <form onSubmit={handleSubmit} className="bg-[var(--bg-secondary)] border border-[var(--border-subtle)] p-8 rounded-2xl shadow-xl w-full max-w-2xl">
+      <h3 className="text-xl font-bold text-[var(--btn-primary-text)] mb-6 flex items-center gap-2">
         <Scale className="text-accentBrand" /> Case Details
       </h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium text-slate-400 mb-2">Offense Type</label>
-          <select name="offense_type" value={formData.offense_type} onChange={handleChange} className="w-full bg-slate-800 border-slate-700 text-slate-200 rounded-lg p-3 focus:ring-2 focus:ring-accentBrand outline-none">
+          <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">Offense Type</label>
+          <select name="offense_type" value={formData.offense_type} onChange={handleChange} className="w-full bg-[var(--bg-surface)] border-[var(--border-primary)] text-[var(--text-primary)] rounded-lg p-3 focus:ring-2 focus:ring-accentBrand outline-none">
             <option>Theft</option>
             <option>Assault</option>
             <option>Fraud</option>
@@ -59,10 +59,10 @@ const PredictionForm: React.FC<PredictionFormProps> = ({ onSubmit, isLoading }) 
         </div>
 
         <div>
-           <label className="block text-sm font-medium text-slate-400 mb-2">State</label>
+           <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">State</label>
            <div className="relative">
-             <MapPin className="absolute left-3 top-3 text-slate-500 w-5 h-5" />
-             <select name="state" value={formData.state} onChange={handleChange} className="w-full pl-10 bg-slate-800 border-slate-700 text-slate-200 rounded-lg p-3 focus:ring-2 focus:ring-accentBrand outline-none">
+             <MapPin className="absolute left-3 top-3 text-[var(--text-secondary)] w-5 h-5" />
+             <select name="state" value={formData.state} onChange={handleChange} className="w-full pl-10 bg-[var(--bg-surface)] border-[var(--border-primary)] text-[var(--text-primary)] rounded-lg p-3 focus:ring-2 focus:ring-accentBrand outline-none">
                <option>Maharashtra</option>
                <option>Delhi</option>
                <option>Karnataka</option>
@@ -72,8 +72,8 @@ const PredictionForm: React.FC<PredictionFormProps> = ({ onSubmit, isLoading }) 
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-400 mb-2">Court Level</label>
-          <select name="court_level" value={formData.court_level} onChange={handleChange} className="w-full bg-slate-800 border-slate-700 text-slate-200 rounded-lg p-3 focus:ring-2 focus:ring-accentBrand outline-none">
+          <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">Court Level</label>
+          <select name="court_level" value={formData.court_level} onChange={handleChange} className="w-full bg-[var(--bg-surface)] border-[var(--border-primary)] text-[var(--text-primary)] rounded-lg p-3 focus:ring-2 focus:ring-accentBrand outline-none">
             <option>Magistrate Court</option>
             <option>Sessions Court</option>
             <option>High Court</option>
@@ -82,8 +82,8 @@ const PredictionForm: React.FC<PredictionFormProps> = ({ onSubmit, isLoading }) 
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-400 mb-2">Bail Type</label>
-          <select name="bail_type" value={formData.bail_type} onChange={handleChange} className="w-full bg-slate-800 border-slate-700 text-slate-200 rounded-lg p-3 focus:ring-2 focus:ring-accentBrand outline-none">
+          <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">Bail Type</label>
+          <select name="bail_type" value={formData.bail_type} onChange={handleChange} className="w-full bg-[var(--bg-surface)] border-[var(--border-primary)] text-[var(--text-primary)] rounded-lg p-3 focus:ring-2 focus:ring-accentBrand outline-none">
             <option>Regular</option>
             <option>Anticipatory</option>
             <option>Interim</option>
@@ -91,10 +91,10 @@ const PredictionForm: React.FC<PredictionFormProps> = ({ onSubmit, isLoading }) 
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-400 mb-2">Months in Custody</label>
+          <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">Months in Custody</label>
           <div className="relative">
-            <Clock className="absolute left-3 top-3 text-slate-500 w-5 h-5" />
-            <input type="number" name="months_in_custody" value={formData.months_in_custody} onChange={handleChange} className="w-full pl-10 bg-slate-800 border-slate-700 text-slate-200 rounded-lg p-3 focus:ring-2 focus:ring-accentBrand outline-none" min="0" />
+            <Clock className="absolute left-3 top-3 text-[var(--text-secondary)] w-5 h-5" />
+            <input type="number" name="months_in_custody" value={formData.months_in_custody} onChange={handleChange} className="w-full pl-10 bg-[var(--bg-surface)] border-[var(--border-primary)] text-[var(--text-primary)] rounded-lg p-3 focus:ring-2 focus:ring-accentBrand outline-none" min="0" />
           </div>
         </div>
       </div>
@@ -104,7 +104,7 @@ const PredictionForm: React.FC<PredictionFormProps> = ({ onSubmit, isLoading }) 
           <input type="checkbox" name="first_offender" checked={formData.first_offender} onChange={handleChange} className="w-5 h-5 rounded border-slate-600 text-accentBrand focus:ring-accentBrand bg-slate-800" />
           <div className="flex items-center gap-2">
             <ShieldCheck className="text-emerald-400 w-5 h-5" />
-            <span className="text-slate-300">First Time Offender</span>
+            <span className="text-[var(--text-secondary)]">First Time Offender</span>
           </div>
         </label>
 
@@ -112,12 +112,12 @@ const PredictionForm: React.FC<PredictionFormProps> = ({ onSubmit, isLoading }) 
           <input type="checkbox" name="surety_available" checked={formData.surety_available} onChange={handleChange} className="w-5 h-5 rounded border-slate-600 text-accentBrand focus:ring-accentBrand bg-slate-800" />
           <div className="flex items-center gap-2">
             <AlertCircle className="text-amber-400 w-5 h-5" />
-            <span className="text-slate-300">Surety Available</span>
+            <span className="text-[var(--text-secondary)]">Surety Available</span>
           </div>
         </label>
       </div>
 
-      <button type="submit" disabled={isLoading} className="mt-8 w-full bg-gradient-to-r from-accentBrand to-purple-600 hover:from-accentBrandDark hover:to-purple-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg transform transition hover:-translate-y-1 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center">
+      <button type="submit" disabled={isLoading} className="mt-8 w-full bg-gradient-to-r from-accentBrand to-purple-600 hover:from-accentBrandDark hover:to-purple-700 text-[var(--btn-primary-text)] font-bold py-4 px-6 rounded-xl shadow-lg transform transition hover:-translate-y-1 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center">
         {isLoading ? (
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
         ) : (

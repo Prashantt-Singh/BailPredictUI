@@ -1,0 +1,321 @@
+{
+  "nav": {
+    "home": "Home",
+    "predict": "Predict",
+    "ipc_guide": "IPC Guide",
+    "my_cases": "My Cases",
+    "sign_in": "Sign In",
+    "get_started": "Get Started",
+    "logout": "Logout",
+    "calendar": "Calendar",
+    "bail_map": "Heatmap"
+  },
+  "dashboard": {
+    "hero_label": "Securing Legal Intelligence",
+    "hero_title": "AI-Powered Bail Prediction for Indian Courts",
+    "hero_subtitle": "Predict bail outcomes, generate legal arguments, and draft applications instantly — powered by advanced AI trained on Indian jurisprudence.",
+    "cta_primary": "Get Started",
+    "cta_secondary": "Explore Features",
+    "stats": {
+      "predictions": "Predictions Made",
+      "accuracy": "Avg. Bail Accuracy",
+      "arguments": "Arguments Generated",
+      "ipc_sections": "IPC Sections Covered"
+    },
+    "features": {
+      "label": "What We Offer",
+      "title": "Built for Legal Professionals",
+      "subtitle": "Three powerful tools that work together to give advocates and law firms an unfair advantage in the courtroom.",
+      "prediction": {
+        "title": "Bail Prediction",
+        "desc": "Predict bail outcomes with high-accuracy AI models trained on thousands of Indian court cases across all major sections."
+      },
+      "arguments": {
+        "title": "AI Legal Arguments",
+        "desc": "Generate context-aware, court-ready legal arguments tailored to your case specifics in seconds."
+      },
+      "draft": {
+        "title": "Draft Generator",
+        "desc": "Produce professional bail application drafts in standard legal format — ready to submit to any Indian court."
+      },
+      "try_now": "Try Now"
+    },
+    "how_it_works": {
+      "label": "How It Works",
+      "title": "From Case Details to Court-Ready Documents",
+      "subtitle": "Enter your case specifics and our dual AI engine delivers probability scores, strong arguments, and professional drafts in seconds.",
+      "step1": {
+        "title": "Enter Case Details",
+        "desc": "IPC section, court level, offense type, and custody duration."
+      },
+      "step2": {
+        "title": "AI Analysis",
+        "desc": "Dual-model pipeline evaluates precedents and calculates bail probability."
+      },
+      "step3": {
+        "title": "Receive Outputs",
+        "desc": "Get your prediction, arguments, and a formatted draft instantly."
+      }
+    },
+    "testimonials": {
+      "label": "Testimonials",
+      "title": "Trusted by Legal Professionals"
+    },
+    "recent": {
+      "workspace": "Your Workspace",
+      "title": "Recent Predictions",
+      "all_cases": "All Cases",
+      "upcoming_hearings": "Upcoming Hearings",
+      "no_predictions": "No predictions yet",
+      "no_predictions_desc": "Run your first analysis to start building your case archive.",
+      "predict_now": "Predict Now",
+      "guest_title": "Access Your Prediction History",
+      "guest_desc": "Sign in to view saved cases, prediction results, and AI-generated application drafts from your previous sessions.",
+      "login_now": "Login Now"
+    },
+    "footer_cta": {
+      "title": "Ready to Predict Your First Case?",
+      "subtitle": "Join advocates across India who trust BailPredict for precision legal AI.",
+      "start_predicting": "Start Predicting",
+      "create_account": "Create Account"
+    }
+  },
+  "predict": {
+    "header_label": "Analysis Engine",
+    "title": "Bail Prediction",
+    "subtitle": "Fill in the case details to receive an AI-powered bail outcome prediction.",
+    "form": {
+      "case_details": "Case Details",
+      "ipc_section": "IPC Section *",
+      "crime": "Crime / Offense (Auto-filled)",
+      "system_filled": "System Filled",
+      "bail_type": "Bail Type *",
+      "court": "Court *",
+      "custody": "Custody Duration",
+      "months": "Mo",
+      "age": "Accused Age",
+      "years": "Yrs",
+      "severity": "Crime Severity (1=Low, 5=High) : ",
+      "severity_min": "MIN",
+      "severity_mod": "MODERATE",
+      "severity_ext": "EXTREME",
+      "first_offender": "First Offender",
+      "prior_record": "Prior Record",
+      "description": "Case Description (Optional)",
+      "submit": "Analyze & Predict",
+      "analyzing": "Analyzing…"
+    },
+    "idle": {
+      "title": "Ready for AI Analysis",
+      "subtitle": "Configure the legal parameters on the left to activate the AI prediction engine."
+    },
+    "loading": {
+      "connecting": "Connecting to AI prediction model...",
+      "analyzing": "Analyzing case with AI engine...",
+      "drafting": "AI drafting arguments...",
+      "drafting_sub": "Scanning supreme court citations and structuring logic."
+    },
+    "error": {
+      "title": "Analysis Failed",
+      "retry": "Retry"
+    },
+    "result": {
+      "granted": "GRANTED",
+      "rejected": "REJECTED",
+      "confidence": "Confidence",
+      "likelihood": "LIKELIHOOD",
+      "arguments_title": "AI Generated Legal Arguments",
+      "arguments_desc": "High-precision legal arguments automatically generated from your case specifics. These points are grounded in Indian penal codes and recent Supreme Court precedents, providing a robust logical framework for your bail application in any jurisdiction.",
+      "copy_all": "Copy All Arguments",
+      "copied": "Copied",
+      "save_case": "Save Case",
+      "saved": "Saved to My Cases",
+      "generate_draft": "Generate Bail Application",
+      "outcome": "Prediction Outcome",
+      "outcome_sub": "Based on historical data and deep learning models",
+      "key_factors": "Key Factors",
+      "ai_argument": "AI Legal Argument",
+      "citations": "Precedent Citations"
+    },
+    "save_modal": {
+      "title": "Save Case",
+      "subtitle": "Add an optional hearing date to track this case",
+      "hearing_date": "Hearing Date",
+      "optional": "(optional)",
+      "cancel": "Cancel",
+      "saving": "Saving…",
+      "save": "Save Case"
+    }
+  },
+  "ipc": {
+    "header_label": "Legal Reference",
+    "title": "IPC Section Guide",
+    "subtitle": "Search any IPC section for instant, AI-powered legal insights.",
+    "search_placeholder": "e.g. 302, 376, 420, NDPS...",
+    "search_btn": "Search",
+    "searching": "Searching…",
+    "loading_title": "Analyzing Section…",
+    "loading_sub": "Fetching legal precedents and key elements",
+    "dismiss": "Dismiss",
+    "result": {
+      "punishment": "Punishment",
+      "bail_eligibility": "Bail Eligibility",
+      "bail_chances": "Bail Chance",
+      "key_elements": "Key Elements",
+      "defense_strategies": "Defense Strategies",
+      "landmark_cases": "Landmark Cases",
+      "bail_considerations": "Bail Considerations"
+    },
+    "empty": {
+      "title": "Search an IPC Section",
+      "subtitle": "Enter any section number or click a quick-access chip above to start."
+    }
+  },
+  "cases": {
+    "header_label": "Workspace",
+    "title": "My Cases",
+    "subtitle": "Your saved predictions, hearing dates, and case history.",
+    "my_drafts": "My Drafts",
+    "new_prediction": "New Prediction",
+    "loading": "Loading your cases…",
+    "retry": "Retry",
+    "empty_title": "No saved cases yet",
+    "empty_sub": "Run your first prediction and save the case to start tracking.",
+    "start_predicting": "Start Predicting",
+    "hearing": "Hearing",
+    "details_btn": "Details",
+    "overdue": "OVERDUE",
+    "urgent": "URGENT",
+    "soon": "SOON",
+    "days": "days"
+  },
+  "draft": {
+    "back": "Back",
+    "header_label": "Document",
+    "title": "Bail Application Draft",
+    "editor": "Legal Draft Editor",
+    "copy": "Copy",
+    "copied": "Copied",
+    "save": "Save Draft",
+    "saved": "Draft Saved",
+    "saving": "Saving…",
+    "download_pdf": "Download PDF",
+    "generating": "Generating draft…",
+    "generating_sub": "Drafting formal bail application clauses.",
+    "draft_saved_msg": "Draft saved to your account.",
+    "view_drafts": "View My Drafts"
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome Back",
+      "subtitle": "Log in to your professional legal workspace.",
+      "email": "Email Address",
+      "password": "Password",
+      "submit": "Sign In to Workspace",
+      "google": "Google Account",
+      "or_continue": "Or continue with",
+      "no_account": "Don't have an account?",
+      "signup_link": "Sign Up Free"
+    },
+    "signup": {
+      "title": "Create Account",
+      "subtitle": "Join the next generation of Indian legal professionals.",
+      "name": "Full Name",
+      "email": "Email Address",
+      "password": "Password",
+      "submit": "Create Workspace",
+      "google": "Google Account",
+      "or_continue": "Or register with",
+      "has_account": "Already have an account?",
+      "login_link": "Sign In"
+    }
+  },
+  "explain": {
+    "likely": "Why Bail is Likely",
+    "unlikely": "Why Bail is Unlikely",
+    "engine": "AI Explainability Engine",
+    "supporting": "Supporting Factors",
+    "against": "Against Factors",
+    "risk_level": "Risk Level",
+    "judge_note": "Strategic Judge's Note",
+    "judge_note_desc": "A professional analysis of how a presiding judge is likely to perceive the case merits. This note highlights key judicial considerations, potential points of contention, and the discretionary balance between personal liberty and the severity of the alleged offense."
+  },
+  "footer": {
+    "brand_desc": "Empowering the Indian legal community with high-precision AI predictions and automated drafting tools. Streamlining bail procedures with advanced AI technology.",
+    "ai_specialized": "AI Specialized",
+    "version": "v2.0 Stable",
+    "nav_title": "Navigation",
+    "nav_home": "Home Dashboard",
+    "nav_predict": "Analyze & Predict",
+    "nav_ipc": "IPC Section Guide",
+    "nav_cases": "My Legal Cases",
+    "resources_title": "Resources",
+    "res_templates": "Drafting Templates",
+    "res_api": "API Documentation",
+    "res_disclaimer": "Legal Disclaimer",
+    "res_privacy": "Privacy Policy",
+    "copyright": "© 2026 BailPredict. All rights reserved. Registered Indian Legal Tech Entity.",
+    "built_with": "Built with Advanced AI",
+    "made_with": "Made with",
+    "for_judiciary": "for the Indian Judiciary"
+  },
+  "voice": {
+    "listening": "Listening...",
+    "speak_now": "Speak now",
+    "not_supported": "Voice input not supported",
+    "play": "Read aloud",
+    "stop": "Stop reading"
+  },
+  "calendar": {
+    "title": "Hearing Calendar",
+    "subtitle": "Track and manage your upcoming case hearings",
+    "export": "Export to Calendar",
+    "exported": "Calendar Exported!",
+    "no_hearings": "No hearings scheduled for this month",
+    "days": {
+      "sun": "Sun",
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat"
+    },
+    "months": {
+      "jan": "January",
+      "feb": "February",
+      "mar": "March",
+      "apr": "April",
+      "may": "May",
+      "jun": "June",
+      "jul": "July",
+      "aug": "August",
+      "sep": "September",
+      "oct": "October",
+      "nov": "November",
+      "dec": "December"
+    }
+  },
+  "heatmap": {
+    "header_label": "Intelligence",
+    "title": "Bail Heatmap of India",
+    "subtitle": "Interactive map showing bail grant rates across Indian states and courts. Based on aggregated, anonymized prediction statistics.",
+    "filter_label": "Filter by IPC Section",
+    "all_sections": "All Sections (Aggregate)",
+    "loading": "Loading Map Data...",
+    "grant_rate": "Grant Rate",
+    "legend_very_low": "< 30% (Very Low)",
+    "legend_low": "30% - 45% (Low)",
+    "legend_mod": "45% - 55% (Moderate)",
+    "legend_good": "55% - 70% (Good)",
+    "legend_high": "> 70% (High)",
+    "disclaimer": "Data is simulated based on AI predictions and historical trends. Not official NCRB records.",
+    "overall_rate": "Overall Grant Rate",
+    "cases_analyzed": "Based on {{count}} total cases analyzed.",
+    "above_avg": "{{percent}}% above national avg",
+    "below_avg": "{{percent}}% below national avg",
+    "court_breakdown": "Court Breakdown",
+    "high_volume": "High Volume Sections",
+    "cases": "cases"
+  }
+}

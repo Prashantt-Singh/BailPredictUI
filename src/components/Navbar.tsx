@@ -3,12 +3,18 @@ import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { LogOut, User as UserIcon } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from './LanguageSwitcher';
+import { useTheme } from '../context/ThemeContext';
+import { Moon, Sun } from 'lucide-react';
 
 const Navbar: React.FC = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
+  const { t } = useTranslation();
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 40);
@@ -17,10 +23,12 @@ const Navbar: React.FC = () => {
   }, []);
 
   const navItems = [
-    { name: 'Home', path: '/' },
-    { name: 'Predict', path: '/predict' },
-    { name: 'IPC Guide', path: '/ipc-guide' },
-    { name: 'My Cases', path: '/my-cases' },
+    { name: t('nav.home'), path: '/' },
+    { name: t('nav.predict'), path: '/predict' },
+    { name: t('nav.ipc_guide'), path: '/ipc-guide' },
+    { name: t('nav.my_cases'), path: '/my-cases' },
+    { name: t('nav.calendar'), path: '/calendar' },
+    { name: t('nav.bail_map'), path: '/bail-map' }
   ];
 
   const handleLogout = async () => {
@@ -32,7 +40,7 @@ const Navbar: React.FC = () => {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         isScrolled
-          ? 'bg-white/95 backdrop-blur-md shadow-sm border-b border-slate-100 h-[64px]'
+          ? 'bg-[var(--bg-secondary)]/80 backdrop-blur-md shadow-sm border-b border-[var(--border-primary)] h-[64px]'
           : 'bg-transparent h-[80px]'
       }`}
     >
@@ -41,12 +49,13 @@ const Navbar: React.FC = () => {
         {/* Logo */}
         <button
           onClick={() => navigate('/')}
-          className="flex items-center gap-3 group"
+          className="flex items-center gap-4 group -ml-24 hover:scale-105 transition-transform duration-500"
         >
-          <div className={`w-7 h-7 rounded-md flex items-center justify-center transition-colors ${isScrolled ? 'bg-[#111]' : 'bg-[#111]'}`}>
-            <div className="w-2.5 h-2.5 bg-[#C9A84C] rounded-sm rotate-45" />
+          <div className="relative">
+            <div className="absolute inset-0 bg-[#C9A84C]/30 blur-xl rounded-full group-hover:bg-[#C9A84C]/50 transition-all duration-700 animate-pulse"></div>
+            <img src="/logo.jpg" alt="BailPredict Logo" className="w-11 h-11 object-contain rounded-xl shadow-[0_0_20px_rgba(201,168,76,0.3)] border-2 border-[#C9A84C]/30 relative z-10 group-hover:rotate-[360deg] transition-all duration-1000" />
           </div>
-          <span className="text-[15px] font-black tracking-tight text-[#111]">
+          <span className="text-[28px] font-serif font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-[#C9A84C] via-[var(--text-primary)] to-[#C9A84C] bg-[length:200%_auto] animate-gradient drop-shadow-lg scale-y-110">
             BailPredict
           </span>
         </button>
@@ -60,8 +69,8 @@ const Navbar: React.FC = () => {
                   to={item.path}
                   end={item.path === '/'}
                   className={({ isActive }) =>
-                    `relative text-[13px] font-black py-1 transition-colors duration-200 group ${
-                      isActive ? 'text-black' : 'text-slate-800 hover:text-black'
+                    `relative text-[15px] font-black py-1 transition-colors duration-200 group ${
+                      isActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-primary)] opacity-80 hover:opacity-100'
                     }`
                   }
                 >
@@ -87,20 +96,30 @@ const Navbar: React.FC = () => {
           </ul>
         </nav>
 
-        {/* Auth Actions */}
         <div className="flex items-center gap-4">
+          <button 
+            onClick={toggleTheme}
+            className="p-2 rounded-full hover:bg-[var(--bg-surface)] text-[var(--text-primary)] opacity-80 hover:opacity-100 transition-colors"
+            title="Toggle theme"
+          >
+            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+          <LanguageSwitcher />
+          
           {user ? (
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-100">
-                <UserIcon size={14} className="text-slate-400" />
-                <span className="text-xs font-bold text-slate-700 hidden sm:inline">
+              <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-[var(--bg-elevated)] border border-[#C9A84C]/20 shadow-sm hover:border-[#C9A84C]/40 transition-all group">
+                <div className="w-7 h-7 rounded-lg bg-[var(--bg-primary)] flex items-center justify-center border border-[var(--border-subtle)] shadow-inner">
+                  <UserIcon size={14} className="text-[#C9A84C]" />
+                </div>
+                <span className="text-sm font-black text-[var(--text-primary)] hidden sm:inline tracking-tight">
                   {user.user_metadata?.full_name || user.email?.split('@')[0]}
                 </span>
               </div>
               <button
                 onClick={handleLogout}
-                className="p-2 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all"
-                title="Logout"
+                className="p-2 rounded-lg text-[var(--text-muted)] hover:text-red-500 hover:bg-red-50 transition-all"
+                title={t('nav.logout')}
               >
                 <LogOut size={17} />
               </button>
@@ -109,31 +128,27 @@ const Navbar: React.FC = () => {
             <div className="flex items-center gap-5">
               <motion.button
                 onClick={() => navigate('/login')}
-                whileTap={{ 
-                  scale: 0.95,
-                  boxShadow: "0 0 15px 2px rgba(0,0,0,0.8)"
-                }}
-                className={`h-10 px-6 border-2 border-slate-900 text-[13px] font-black rounded-lg transition-all ${
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className={`h-11 px-8 text-[15px] font-black rounded-xl transition-all relative overflow-hidden border-2 ${
                   location.pathname === '/login' 
-                    ? 'bg-slate-900 text-white' 
-                    : 'bg-transparent text-slate-900 hover:bg-slate-900 hover:text-white'
+                    ? 'bg-[#C9A84C] text-black border-[#C9A84C] shadow-[0_0_20px_rgba(201,168,76,0.3)]' 
+                    : 'bg-transparent text-[var(--text-primary)] border-[#C9A84C]/30 hover:border-[#C9A84C] hover:shadow-[0_0_15px_rgba(201,168,76,0.2)]'
                 }`}
               >
-                Sign In
+                {t('nav.sign_in')}
               </motion.button>
               <motion.button
                 onClick={() => navigate('/signup')}
-                whileTap={{ 
-                  scale: 0.95,
-                  boxShadow: "0 0 15px 2px rgba(0,0,0,0.8)"
-                }}
-                className={`h-10 px-6 border-2 border-slate-900 text-[13px] font-black rounded-lg transition-all ${
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className={`h-11 px-8 text-[15px] font-black rounded-xl transition-all relative overflow-hidden border-2 ${
                   location.pathname === '/signup' 
-                    ? 'bg-slate-900 text-white' 
-                    : 'bg-transparent text-slate-900 hover:bg-slate-900 hover:text-white'
+                    ? 'bg-[#C9A84C] text-black border-[#C9A84C] shadow-[0_0_20px_rgba(201,168,76,0.3)]' 
+                    : 'bg-[var(--text-primary)] text-[var(--bg-primary)] border-[var(--text-primary)] hover:opacity-90'
                 }`}
               >
-                Get Started
+                {t('nav.get_started')}
               </motion.button>
             </div>
           )}

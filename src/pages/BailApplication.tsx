@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FileText, Copy, Download, ArrowLeft, Check, Loader2, BookmarkCheck, Save } from 'lucide-react';
 import { jsPDF } from 'jspdf';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 
@@ -34,6 +35,7 @@ const BailApplication: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useTranslation();
 
   const caseData: any = location.state?.caseData;
   const argumentsList: any[] = location.state?.arguments || [];
@@ -95,46 +97,46 @@ const BailApplication: React.FC = () => {
   if (!caseData) return null;
 
   return (
-    <div className="min-h-screen bg-[#F8F9FB] w-full pb-16">
+    <div className="min-h-screen bg-[var(--bg-primary)] w-full pb-16">
       <div className="max-w-4xl mx-auto px-6 py-12">
 
         {/* Header */}
         <div className="flex items-center justify-between mb-10">
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-sm font-bold text-slate-400 hover:text-[#111] transition-colors"
+            className="flex items-center gap-2 text-sm font-bold text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
           >
-            <ArrowLeft size={18} /> Back
+            <ArrowLeft size={18} /> {t('draft.back')}
           </button>
           <div className="text-right">
-            <span className="text-[10px] font-black uppercase tracking-[4px] text-[#C9A84C]">Document</span>
-            <h1 className="text-2xl font-serif font-black text-[#111] mt-1">Bail Application Draft</h1>
+            <span className="text-[10px] font-black uppercase tracking-[4px] text-[#C9A84C]">{t('draft.header_label')}</span>
+            <h1 className="text-2xl font-serif font-black text-[var(--text-primary)] mt-1">{t('draft.title')}</h1>
           </div>
         </div>
 
         {/* Document Card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div className="bg-[var(--bg-secondary)] rounded-2xl shadow-sm border border-[var(--border-subtle)] overflow-hidden">
           {/* Toolbar */}
-          <div className="flex flex-wrap items-center justify-between px-6 py-4 border-b border-slate-100 gap-3">
+          <div className="flex flex-wrap items-center justify-between px-6 py-4 border-b border-[var(--border-subtle)] gap-3">
             <div className="flex items-center gap-2">
               <FileText size={18} className="text-[#C9A84C]" />
-              <span className="font-black text-[#111] text-sm">Legal Draft Editor</span>
+              <span className="font-black text-[var(--text-primary)] text-sm">{t('draft.editor')}</span>
             </div>
             <div className="flex items-center gap-2 flex-wrap">
               <button
                 onClick={handleCopy}
                 disabled={loading}
-                className="h-9 px-4 border border-slate-200 text-[#111] text-xs font-black rounded-lg flex items-center gap-1.5 hover:border-[#111] transition-all disabled:opacity-40"
+                className="h-9 px-4 border border-[var(--border-primary)] text-[var(--text-primary)] text-xs font-black rounded-lg flex items-center gap-1.5 hover:border-[var(--btn-primary-bg)] transition-all disabled:opacity-40"
               >
                 {copied ? <Check size={13} className="text-[#C9A84C]" /> : <Copy size={13} />}
-                {copied ? 'Copied' : 'Copy'}
+                {copied ? t('draft.copied') : t('draft.copy')}
               </button>
               {/* Save Draft — only for logged-in users */}
               {user && (
                 <button
                   onClick={handleSaveDraft}
                   disabled={loading || draftSaved || savingDraft}
-                  className="h-9 px-4 border border-slate-200 text-[#111] text-xs font-black rounded-lg flex items-center gap-1.5 hover:border-[#111] transition-all disabled:opacity-50"
+                  className="h-9 px-4 border border-[var(--border-primary)] text-[var(--text-primary)] text-xs font-black rounded-lg flex items-center gap-1.5 hover:border-[var(--btn-primary-bg)] transition-all disabled:opacity-50"
                 >
                   {savingDraft ? (
                     <Loader2 size={13} className="animate-spin" />
@@ -143,33 +145,33 @@ const BailApplication: React.FC = () => {
                   ) : (
                     <Save size={13} />
                   )}
-                  {draftSaved ? 'Draft Saved' : savingDraft ? 'Saving…' : 'Save Draft'}
+                  {draftSaved ? t('draft.saved') : savingDraft ? t('draft.saving') : t('draft.save')}
                 </button>
               )}
               <button
                 onClick={handleDownloadPDF}
                 disabled={loading}
-                className="h-9 px-4 bg-[#C9A84C] text-[#111] text-xs font-black rounded-lg flex items-center gap-1.5 hover:bg-[#b09341] transition-all disabled:opacity-40 shadow-sm"
+                className="h-9 px-4 bg-[#C9A84C] text-[var(--text-primary)] text-xs font-black rounded-lg flex items-center gap-1.5 hover:bg-[#b09341] transition-all disabled:opacity-40 shadow-sm"
               >
-                <Download size={13} /> Download PDF
+                <Download size={13} /> {t('draft.download_pdf')}
               </button>
             </div>
           </div>
 
           {/* Document Area */}
-          <div className="bg-slate-50 p-8 flex justify-center">
+          <div className="bg-[var(--bg-surface)] p-8 flex justify-center">
             {loading ? (
-              <div className="w-full max-w-2xl bg-white shadow-sm rounded-xl min-h-[500px] flex flex-col items-center justify-center text-center p-12">
+              <div className="w-full max-w-2xl bg-[var(--bg-secondary)] shadow-sm rounded-xl min-h-[500px] flex flex-col items-center justify-center text-center p-12">
                 <Loader2 size={40} className="text-[#C9A84C] animate-spin mb-5" />
-                <h3 className="text-lg font-black text-[#111] mb-2">Generating draft…</h3>
-                <p className="text-slate-400 text-sm font-medium">Drafting formal bail application clauses.</p>
+                <h3 className="text-lg font-black text-[var(--text-primary)] mb-2">{t('draft.generating')}</h3>
+                <p className="text-[var(--text-muted)] text-sm font-medium">{t('draft.generating_sub')}</p>
               </div>
             ) : (
-              <div className="w-full max-w-3xl bg-white shadow-sm rounded-xl">
+              <div className="w-full max-w-3xl bg-[var(--bg-secondary)] shadow-sm rounded-xl relative">
                 <textarea
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
-                  className="w-full h-[750px] p-12 text-slate-800 focus:outline-none resize-y rounded-xl"
+                  className="w-full h-[750px] p-12 text-[var(--text-primary)] focus:outline-none resize-y rounded-xl"
                   style={{
                     fontFamily: '"Times New Roman", Times, serif',
                     fontSize: '15px',
@@ -188,13 +190,13 @@ const BailApplication: React.FC = () => {
           <div className="mt-5 bg-emerald-50 border border-emerald-100 rounded-xl px-6 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <BookmarkCheck size={20} className="text-emerald-600" />
-              <span className="text-sm font-bold text-emerald-700">Draft saved to your account.</span>
+              <span className="text-sm font-bold text-emerald-700">{t('draft.draft_saved_msg')}</span>
             </div>
             <button
               onClick={() => navigate('/my-drafts')}
               className="text-xs font-black text-emerald-600 hover:text-emerald-800 transition-colors"
             >
-              View My Drafts →
+              {t('draft.view_drafts')} →
             </button>
           </div>
         )}

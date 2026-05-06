@@ -67,7 +67,7 @@ const Signup: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-full flex overflow-hidden bg-white">
+    <div className="min-h-screen w-full flex overflow-hidden bg-[var(--bg-secondary)]">
       {/* Left Side: Branding Side */}
       <div className="hidden lg:flex w-1/2 bg-[#0a0f1e] relative overflow-hidden flex-col items-center justify-center p-12">
         {/* Animated Background Elements */}
@@ -100,7 +100,7 @@ const Signup: React.FC = () => {
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="w-24 h-24 bg-white/5 backdrop-blur-xl rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 border border-white/10 shadow-2xl relative"
+            className="w-24 h-24 bg-[var(--bg-secondary)]/5 backdrop-blur-xl rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 border border-white/10 shadow-2xl relative"
           >
             <Scale className="text-[#C9A84C]" size={48} />
             <div className="absolute inset-0 bg-[#C9A84C]/20 blur-3xl rounded-full -z-10 animate-pulse"></div>
@@ -110,7 +110,7 @@ const Signup: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-5xl font-serif font-black text-white mb-6 leading-tight"
+            className="text-5xl font-serif font-black text-[var(--btn-primary-text)] mb-6 leading-tight"
           >
             AI-Powered <br />
             <span className="text-[#C9A84C]">Legal Intelligence</span>
@@ -120,7 +120,7 @@ const Signup: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="text-slate-400 text-xl font-medium leading-relaxed"
+            className="text-[var(--text-muted)] text-xl font-medium leading-relaxed"
           >
             Predict bail outcomes, generate arguments, and draft applications instantly with our high-end neural engine.
           </motion.p>
@@ -128,14 +128,14 @@ const Signup: React.FC = () => {
 
         {/* Floating Tags */}
         <div className="absolute bottom-20 left-0 right-0 flex justify-center gap-4 opacity-30">
-          <div className="px-4 py-2 rounded-full border border-white/10 text-white text-xs font-black uppercase tracking-widest">Case Analysis</div>
-          <div className="px-4 py-2 rounded-full border border-white/10 text-white text-xs font-black uppercase tracking-widest">Draft Generation</div>
-          <div className="px-4 py-2 rounded-full border border-white/10 text-white text-xs font-black uppercase tracking-widest">IPC Intelligence</div>
+          <div className="px-4 py-2 rounded-full border border-white/10 text-[var(--btn-primary-text)] text-xs font-black uppercase tracking-widest">Case Analysis</div>
+          <div className="px-4 py-2 rounded-full border border-white/10 text-[var(--btn-primary-text)] text-xs font-black uppercase tracking-widest">Draft Generation</div>
+          <div className="px-4 py-2 rounded-full border border-white/10 text-[var(--btn-primary-text)] text-xs font-black uppercase tracking-widest">IPC Intelligence</div>
         </div>
       </div>
 
       {/* Right Side: Auth Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-[#f8fbff] relative">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-[var(--bg-primary)] relative">
         {/* Subtle glow for mobile */}
         <div className="lg:hidden absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-[#C9A84C]/10 blur-[100px] pointer-events-none"></div>
 
@@ -144,7 +144,7 @@ const Signup: React.FC = () => {
           animate={{ opacity: 1, x: 0 }}
           className="max-w-md w-full"
         >
-          <div className="bg-white/80 backdrop-blur-2xl rounded-[3rem] p-10 lg:p-12 shadow-[0_32px_100px_rgba(0,0,0,0.06)] border border-white relative overflow-hidden">
+          <div className="bg-[var(--bg-secondary)] backdrop-blur-2xl rounded-[3rem] p-10 lg:p-12 shadow-2xl border border-[var(--border-subtle)] relative overflow-hidden">
             
             <AnimatePresence mode="wait">
               {!success ? (
@@ -155,8 +155,8 @@ const Signup: React.FC = () => {
                   exit={{ opacity: 0, scale: 0.95 }}
                 >
                   <div className="mb-10 text-center lg:text-left">
-                    <h2 className="text-3xl font-serif font-black text-slate-800 mb-3">Create Account</h2>
-                    <p className="text-slate-500 font-medium tracking-tight">Join the next generation of legal tech.</p>
+                    <h2 className="text-3xl font-serif font-black text-[var(--text-primary)] mb-3">Create Account</h2>
+                    <p className="text-[var(--text-secondary)] font-medium tracking-tight">Join the next generation of legal tech.</p>
                   </div>
 
                   <form onSubmit={handleSignup} className="space-y-6">
@@ -167,9 +167,9 @@ const Signup: React.FC = () => {
                       <input type="password" name="user_pass" tabIndex={-1} autoComplete="on" />
                     </div>
                       <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[2px] ml-1">Full Name</label>
+                        <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[2px] ml-1">Full Name</label>
                         <div className="relative group">
-                          <CheckCircle2 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#C9A84C] transition-colors" size={20} />
+                          <CheckCircle2 className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] group-focus-within:text-[#C9A84C] transition-colors" size={20} />
                           <input 
                             type="text"
                             value={fullName}
@@ -177,15 +177,15 @@ const Signup: React.FC = () => {
                             placeholder="Aisha Sharma"
                             autoComplete="new-password"
                             required
-                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm font-bold focus:outline-none focus:ring-4 focus:ring-[#C9A84C]/10 focus:bg-white focus:border-[#C9A84C] transition-all"
+                            className="w-full bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-2xl py-4 pl-12 pr-4 text-sm font-bold focus:outline-none focus:ring-4 focus:ring-[#C9A84C]/10 focus:bg-[var(--bg-secondary)] focus:border-[#C9A84C] transition-all"
                           />
                         </div>
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[2px] ml-1">Email Address</label>
+                        <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[2px] ml-1">Email Address</label>
                         <div className="relative group">
-                          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#C9A84C] transition-colors" size={20} />
+                          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] group-focus-within:text-[#C9A84C] transition-colors" size={20} />
                           <input 
                             type="email"
                             value={email}
@@ -193,15 +193,15 @@ const Signup: React.FC = () => {
                             placeholder="advocate@example.com"
                             autoComplete="off"
                             required
-                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm font-bold focus:outline-none focus:ring-4 focus:ring-[#C9A84C]/10 focus:bg-white focus:border-[#C9A84C] transition-all"
+                            className="w-full bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-2xl py-4 pl-12 pr-4 text-sm font-bold focus:outline-none focus:ring-4 focus:ring-[#C9A84C]/10 focus:bg-[var(--bg-secondary)] focus:border-[#C9A84C] transition-all"
                           />
                         </div>
                       </div>
 
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-[2px] ml-1">Password</label>
+                      <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[2px] ml-1">Password</label>
                       <div className="relative group">
-                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#C9A84C] transition-colors" size={20} />
+                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] group-focus-within:text-[#C9A84C] transition-colors" size={20} />
                         <input 
                           type="password"
                           value={password}
@@ -209,7 +209,7 @@ const Signup: React.FC = () => {
                           placeholder="••••••••"
                           autoComplete="off"
                           required
-                          className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm font-bold focus:outline-none focus:ring-4 focus:ring-[#C9A84C]/10 focus:bg-white focus:border-[#C9A84C] transition-all"
+                          className="w-full bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-2xl py-4 pl-12 pr-4 text-sm font-bold focus:outline-none focus:ring-4 focus:ring-[#C9A84C]/10 focus:bg-[var(--bg-secondary)] focus:border-[#C9A84C] transition-all"
                         />
                       </div>
                     </div>
@@ -221,7 +221,7 @@ const Signup: React.FC = () => {
                         scale: 0.98,
                         boxShadow: "0 0 20px 2px rgba(0,0,0,0.8)",
                       }}
-                      className="w-full bg-[#0a0f1e] text-[#C9A84C] py-5 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-black transition-all flex items-center justify-center gap-3 group disabled:opacity-50"
+                      className="w-full bg-[#0a0f1e] text-[#C9A84C] py-5 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-[var(--btn-primary-hover)] transition-all flex items-center justify-center gap-3 group disabled:opacity-50"
                     >
                       {loading ? <RefreshCw className="animate-spin text-[#C9A84C]" size={20} /> : (
                         <>
@@ -232,9 +232,9 @@ const Signup: React.FC = () => {
                     </motion.button>
                   </form>
 
-                  <div className="mt-8 text-center font-bold text-sm text-slate-400">
+                  <div className="mt-8 text-center font-bold text-sm text-[var(--text-muted)]">
                     Already have an account? {' '}
-                    <Link to="/login" className="text-[#0a0f1e] hover:text-[#C9A84C] transition-colors underline underline-offset-4 decoration-2 decoration-slate-100">Log In</Link>
+                    <Link to="/login" className="text-[var(--text-primary)] hover:text-[#C9A84C] transition-colors underline underline-offset-4 decoration-2 decoration-slate-100">Log In</Link>
                   </div>
                 </motion.div>
               ) : (
@@ -248,12 +248,12 @@ const Signup: React.FC = () => {
                     <CheckCircle2 className="text-emerald-500" size={40} />
                   </div>
                   <h3 className="text-2xl font-serif font-black text-[#0a0f1e] mb-4">Check Your Email</h3>
-                  <p className="text-slate-500 font-medium mb-8">
+                  <p className="text-[var(--text-secondary)] font-medium mb-8">
                     We've sent a verification link to <span className="text-[#0a0f1e] font-bold">{email}</span>. Click the link to activate your account.
                   </p>
                   <button 
                     onClick={() => navigate('/login')}
-                    className="w-full bg-[#0a0f1e] text-[#C9A84C] py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-black/10 hover:bg-black transition-all"
+                    className="w-full bg-[#0a0f1e] text-[#C9A84C] py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-black/10 hover:bg-[var(--btn-primary-hover)] transition-all"
                   >
                     Back to Log In
                   </button>

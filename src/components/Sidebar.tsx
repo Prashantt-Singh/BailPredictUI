@@ -1,13 +1,17 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { LayoutDashboard, Scale, FileText, BarChart3, Users, Clock, Edit3, PieChart } from 'lucide-react';
+import { LayoutDashboard, Scale, FileText, BarChart3, Users, Clock, Edit3, PieChart, Map } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const Sidebar: React.FC = () => {
+  const { t } = useTranslation();
   const navItems = [
-    { name: 'Dashboard', path: '/', icon: <LayoutDashboard size={20} /> },
-    { name: 'Predict Bail', path: '/predict', icon: <Scale size={20} /> },
-    { name: 'Cases', path: '/cases', icon: <FileText size={20} /> },
+    { name: t('nav.home'), path: '/', icon: <LayoutDashboard size={20} /> },
+    { name: t('nav.predict'), path: '/predict', icon: <Scale size={20} /> },
+    { name: t('nav.ipc_guide'), path: '/ipc-guide', icon: <FileText size={20} /> },
+    { name: t('nav.my_cases'), path: '/my-cases', icon: <FileText size={20} /> },
+    { name: t('nav.bail_map'), path: '/bail-map', icon: <Map size={20} /> },
     { name: 'Bias Audit', path: '/audit', icon: <BarChart3 size={20} /> },
     { name: 'Judge Insights', path: '/insights', icon: <Users size={20} /> },
     { name: 'Timeline', path: '/timeline', icon: <Clock size={20} /> },
