@@ -163,18 +163,7 @@ const Predict: React.FC = () => {
       setVoiceFilledFields(result.filledFields);
    }, []);
 
-   const incrementStats = async (argCount: number) => {
-       try {
-          const { data } = await supabase.from('stats').select('id, total_predictions, arguments_generated').single();
-          if (!data) return;
-          await supabase.from('stats').update({
-             total_predictions: (data.total_predictions || 0) + 1,
-             arguments_generated: (data.arguments_generated || 0) + argCount,
-          }).eq('id', data.id);
-       } catch (e) {
-          console.warn('[Stats] increment skipped:', e);
-       }
-    };
+
 
    const handlePredict = async (e: React.FormEvent) => {
       e.preventDefault();

@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertTriangle, ChevronDown, ChevronUp, Scale, Info, Check, X, ShieldAlert } from 'lucide-react';
+import { ChevronDown, ChevronUp, Scale, Info, Check, X, ShieldAlert } from 'lucide-react';
 
 interface Factor {
   label: string;

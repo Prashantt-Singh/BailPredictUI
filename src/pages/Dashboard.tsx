@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, useInView, AnimatePresence } from 'framer-motion';
+import { motion, useInView } from 'framer-motion';
 import {
   Scale, Activity, FileText, Brain, ArrowRight, ChevronRight,
-  ChevronLeft, Lock, Shield, Star, Quote, Calendar
+  Lock, Shield, Calendar
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -61,26 +61,7 @@ const Dashboard: React.FC = () => {
     },
   ];
 
-  const TESTIMONIALS = [
-    {
-      quote: "BailPredict transformed how I approach bail applications. The AI arguments are sophisticated, accurate, and genuinely admissible.",
-      name: "Adv. Priya Singh",
-      role: "Senior Criminal Advocate, Delhi High Court",
-      rating: 5,
-    },
-    {
-      quote: "The draft generator alone saves me hours per case. This is the kind of legal tech India has been waiting for.",
-      name: "Adv. Rahul Mehra",
-      role: "Defense Counsel, Bombay High Court",
-      rating: 5,
-    },
-    {
-      quote: "Incredibly precise bail probability estimates. I use it to counsel clients before presenting arguments — it sets the right expectations.",
-      name: "Adv. Kavitha Nair",
-      role: "Criminal Defense Attorney, Kerala",
-      rating: 5,
-    },
-  ];
+
 
   // ── Hearing urgency helper ────────────────────────────────
   const getHearingBadge = (dateStr: string) => {
@@ -97,15 +78,12 @@ const Dashboard: React.FC = () => {
   const [upcomingHearings, setUpcomingHearings] = useState<any[]>([]);
   const [liveStats, setLiveStats] = useState<any>(null);
   const [statsLoading, setStatsLoading] = useState(true);
-  const [testimonialIdx, setTestimonialIdx] = useState(0);
   const heroWords = t('dashboard.hero_title').split(' ');
 
   useEffect(() => {
     window.scrollTo(0, 0);
     fetchStats();
     if (user) fetchCases();
-    const timer = setInterval(() => setTestimonialIdx(i => (i + 1) % TESTIMONIALS.length), 5000);
-    return () => clearInterval(timer);
   }, [user]);
 
   const fetchStats = async () => {
@@ -132,9 +110,6 @@ const Dashboard: React.FC = () => {
       setUpcomingHearings(upcoming);
     }
   };
-
-  const prevTestimonial = useCallback(() => setTestimonialIdx(i => (i - 1 + TESTIMONIALS.length) % TESTIMONIALS.length), [TESTIMONIALS.length]);
-  const nextTestimonial = useCallback(() => setTestimonialIdx(i => (i + 1) % TESTIMONIALS.length), [TESTIMONIALS.length]);
 
   // Section refs for reveal
   const statsRef = useRef(null);
