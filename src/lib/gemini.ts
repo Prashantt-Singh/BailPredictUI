@@ -199,7 +199,8 @@ export const generateDraft = async (caseData: unknown, argumentsList: unknown[])
     return result.response.text();
   } catch (e) {
     console.error("Gemini Draft Failed:", e);
-    return `IN THE COURT OF ${caseData.court?.toUpperCase()}\n\nBail Application under Section 437/439 of CrPC\n\nIn the matter of:\n${caseData.offense || 'The Accused'} v. State\n\nCase Details:\n* Offense: Section ${caseData.ipc}\n* Court: ${caseData.court}\n\nMost Respectfully Submitted:\n1. That the accused is innocent and has been falsely implicated in the present case.\n2. That the accused is a permanent resident and has deep roots in the community.\n3. That the accused undertakes to abide by all terms and conditions imposed by this Hon'ble Court.\n\nPRAYER:\nIn view of the above facts, it is most respectfully prayed that this Hon’ble Court may graciously be pleased to grant bail to the accused in the interest of justice.`;
+    const cd = (caseData ?? {}) as any;
+    return `IN THE COURT OF ${cd.court?.toUpperCase()}\n\nBail Application under Section 437/439 of CrPC\n\nIn the matter of:\n${cd.offense || 'The Accused'} v. State\n\nCase Details:\n* Offense: Section ${cd.ipc}\n* Court: ${cd.court}\n\nMost Respectfully Submitted:\n1. That the accused is innocent and has been falsely implicated in the present case.\n2. That the accused is a permanent resident and has deep roots in the community.\n3. That the accused undertakes to abide by all terms and conditions imposed by this Hon'ble Court.\n\nPRAYER:\nIn view of the above facts, it is most respectfully prayed that this Hon’ble Court may graciously be pleased to grant bail to the accused in the interest of justice.`;
   }
 };
 
@@ -428,7 +429,7 @@ Matching rules:
     const result = await model.generateContent(prompt);
     const text = result.response.text();
     const parsed = safeJsonParse(text, null);
-    return { ...fallback, ...parsed, description: transcript };
+    return { ...fallback, ...(parsed as any), description: transcript };
   } catch (e) {
     console.error("Voice parse failed:", e);
     return fallback;

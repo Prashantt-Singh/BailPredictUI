@@ -185,7 +185,7 @@ const CaseDetails: React.FC = () => {
           ))}
 
           {/* Hearing date row */}
-          {caseData.hearing_date && (
+          {caseData?.hearing_date && (
             <div className="flex items-center gap-4 px-8 py-5">
               <div className="w-8 h-8 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-subtle)] flex items-center justify-center shrink-0">
                 <Calendar size={16} className="text-[#C9A84C]" />
@@ -200,7 +200,7 @@ const CaseDetails: React.FC = () => {
           )}
 
           {/* Case description */}
-          {caseData.case_description && (
+          {caseData?.case_description && (
             <div className="flex items-start gap-4 px-8 py-5">
               <div className="w-8 h-8 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-subtle)] flex items-center justify-center shrink-0 mt-0.5">
                 <FileText size={16} className="text-[#C9A84C]" />

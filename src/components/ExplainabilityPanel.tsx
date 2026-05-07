@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, ChevronUp, Scale, Info, Check, X, ShieldAlert } from 'lucide-react';
+import { ChevronDown, ChevronUp, Scale, Check, X, ShieldAlert } from 'lucide-react';
 
 interface Factor {
   label: string;
@@ -21,10 +21,8 @@ interface ExplainabilityPanelProps {
   loading: boolean;
 }
 
-import { useTranslation } from 'react-i18next';
 
 const ExplainabilityPanel: React.FC<ExplainabilityPanelProps> = ({ data, loading }) => {
-  const { t } = useTranslation();
   const [expanded, setExpanded] = React.useState(true);
 
   if (loading) {

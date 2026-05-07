@@ -58,7 +58,7 @@ const IndiaMap: React.FC<IndiaMapProps> = ({ data, onStateClick, selectedStateCo
           return (
             <path
               key={`path-${i}`}
-              d={pathGenerator(feature) || ''}
+              d={pathGenerator(feature as any) || ''}
               fill={getColor(grantRate)}
               stroke={isSelected ? '#C9A84C' : '#0a0f1e'}
               strokeWidth={isSelected ? 3 : 0.5}
