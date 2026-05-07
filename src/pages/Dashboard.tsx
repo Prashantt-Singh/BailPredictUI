@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
 import {
   Scale, Activity, FileText, Brain, ArrowRight, ChevronRight,
   Lock, Shield, Calendar
 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { supabase } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
 
@@ -68,48 +68,68 @@ const Dashboard: React.FC = () => {
     const today = new Date(); today.setHours(0,0,0,0);
     const hearing = new Date(dateStr);
     const diffDays = Math.ceil((hearing.getTime() - today.getTime()) / (1000*60*60*24));
-    if (diffDays <= 0)  return { label: t('cases.overdue'),   color: 'bg-[var(--bg-surface)] text-[var(--text-secondary)]' };
+    if (diffDays < 0)  return { label: t('cases.overdue'),   color: 'bg-[var(--bg-surface)] text-[var(--text-secondary)]' };
     if (diffDays <= 2)  return { label: `${t('cases.urgent')} · ${diffDays}d`, color: 'bg-red-50 text-red-600' };
     if (diffDays <= 5)  return { label: `${t('cases.soon')} · ${diffDays}d`,   color: 'bg-amber-50 text-amber-600' };
     return { label: `${diffDays}d`,  color: 'bg-emerald-50 text-emerald-600' };
   };
 
-  const [savedCases, setSavedCases] = useState<any[]>([]);
-  const [upcomingHearings, setUpcomingHearings] = useState<any[]>([]);
-  const [liveStats, setLiveStats] = useState<any>(null);
+  type CaseRow = {
+    id: string;
+    ipc_section: string;
+    offense: string;
+    court: string;
+    bail_probability: number;
+    likelihood: string;
+    hearing_date: string | null;
+    created_at: string;
+  };
+  type LiveStatsRow = {
+    id: string | number;
+    total_predictions?: number | null;
+    arguments_generated?: number | null;
+  };
+
+  const [savedCases, setSavedCases] = useState<CaseRow[]>([]);
+  const [upcomingHearings, setUpcomingHearings] = useState<CaseRow[]>([]);
+  const [liveStats, setLiveStats] = useState<LiveStatsRow | null>(null);
   const [statsLoading, setStatsLoading] = useState(true);
   const heroWords = t('dashboard.hero_title').split(' ');
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    fetchStats();
-    if (user) fetchCases();
-  }, [user]);
-
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     const { data } = await supabase.from('stats').select('*').single();
-    if (data) setLiveStats(data);
+    if (data) setLiveStats(data as LiveStatsRow);
     setStatsLoading(false);
-  };
+  }, []);
 
-  const fetchCases = async () => {
+  const fetchCases = useCallback(async () => {
+    if (!user) return;
     const { data } = await supabase
       .from('cases')
       .select('*')
-      .eq('user_id', user!.id)
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(5);
     if (data) {
-      setSavedCases(data);
+      setSavedCases(data as CaseRow[]);
       // upcoming hearings: filter cases with future hearing dates, sort ascending
       const today = new Date(); today.setHours(0,0,0,0);
-      const upcoming = data
+      const upcoming = (data as CaseRow[])
         .filter(c => c.hearing_date && new Date(c.hearing_date) >= today)
-        .sort((a, b) => new Date(a.hearing_date).getTime() - new Date(b.hearing_date).getTime())
+        .sort((a, b) => new Date(a.hearing_date ?? '').getTime() - new Date(b.hearing_date ?? '').getTime())
         .slice(0, 3);
       setUpcomingHearings(upcoming);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    const timer = window.setTimeout(() => {
+      void fetchStats();
+      if (user) void fetchCases();
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [user, fetchStats, fetchCases]);
 
   // Section refs for reveal
   const statsRef = useRef(null);

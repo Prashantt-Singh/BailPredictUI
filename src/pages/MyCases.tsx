@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { FileText, ChevronRight, Clock, Trash2, ArrowRight, Calendar, Edit3, Loader2, AlertCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FileText, ChevronRight, Clock, Trash2, ArrowRight, Calendar, Edit3, Loader2, AlertCircle, AlertTriangle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 
 interface CaseRow {
   id: string;
@@ -22,9 +22,12 @@ const MyCases: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { t, i18n } = useTranslation();
+  const userId = user?.id;
   const [savedCases, setSavedCases] = useState<CaseRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState('');
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // ── Hearing status badge helper ─────────────────────────────
   const getHearingStatus = (dateStr: string) => {
@@ -33,24 +36,21 @@ const MyCases: React.FC = () => {
     today.setHours(0, 0, 0, 0);
     const hearing = new Date(dateStr);
     const diffDays = Math.ceil((hearing.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-    if (diffDays <= 0) return { label: t('cases.overdue'), color: 'bg-[var(--bg-surface)] text-[var(--text-secondary)] border-[var(--border-primary)]' };
+    // diffDays === 0 means "today" (not overdue)
+    if (diffDays < 0) return { label: t('cases.overdue'), color: 'bg-[var(--bg-surface)] text-[var(--text-secondary)] border-[var(--border-primary)]' };
     if (diffDays <= 2) return { label: `${t('cases.urgent')} · ${diffDays}d`, color: 'bg-red-50 text-red-600 border-red-200' };
     if (diffDays <= 5) return { label: `${t('cases.soon')} · ${diffDays}d`, color: 'bg-amber-50 text-amber-600 border-amber-200' };
     return { label: `${diffDays} ${t('cases.days')}`, color: 'bg-emerald-50 text-emerald-600 border-emerald-200' };
   };
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    if (user) loadCases();
-  }, [user]);
-
-  const loadCases = async () => {
+  const loadCases = useCallback(async () => {
+    if (!userId) return;
     setLoading(true);
     setFetchError('');
     const { data, error } = await supabase
       .from('cases')
       .select('*')
-      .eq('user_id', user!.id)
+      .eq('user_id', userId)
       .order('created_at', { ascending: false });
     if (error) {
       setFetchError('Failed to load cases. Please refresh and try again.');
@@ -58,13 +58,53 @@ const MyCases: React.FC = () => {
       setSavedCases(data as CaseRow[]);
     }
     setLoading(false);
-  };
+  }, [userId]);
 
-  const handleDelete = async (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    const { error } = await supabase.from('cases').delete().eq('id', id);
-    if (!error) {
-      setSavedCases(prev => prev.filter(c => c.id !== id));
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    if (!userId) return;
+    const timer = window.setTimeout(() => { void loadCases(); }, 0);
+    return () => window.clearTimeout(timer);
+  }, [userId, loadCases]);
+
+  const handleDelete = async (id: string) => {
+    if (!userId) {
+      alert("Error: You must be logged in to delete cases.");
+      return;
+    }
+    
+    setIsDeleting(true);
+    
+    try {
+      // 1. Attempt delete by ID only. 
+      // Supabase RLS will still protect other users' data if configured.
+      const { data, error, status } = await supabase
+        .from('cases')
+        .delete()
+        .eq('id', id)
+        .select();
+
+      if (error) {
+        console.error('Database Error:', error);
+        alert(`Database Error: ${error.message} (Code: ${error.code || status})`);
+      } else if (!data || data.length === 0) {
+        // STILL 0 rows - This confirms a missing RLS policy.
+        console.warn('Delete failed even with simplified query.');
+        alert(`CRITICAL: The database is blocking this delete. \n\nTo fix this, you must go to your Supabase Dashboard -> Table Editor -> cases -> RLS Policies and add a policy that allows "DELETE" for authenticated users.`);
+        await loadCases();
+      } else {
+        // Success!
+        setSavedCases(prev => prev.filter(c => c.id !== id));
+        if (typeof window !== 'undefined' && window.dispatchEvent) {
+          window.dispatchEvent(new Event('casesUpdated'));
+        }
+        setDeleteConfirm(null);
+      }
+    } catch (err) {
+      console.error('System Error:', err);
+      alert('An unexpected system error occurred.');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -204,7 +244,7 @@ const MyCases: React.FC = () => {
                         {t('cases.details_btn')} <ChevronRight size={14} />
                       </button>
                       <button
-                        onClick={(e) => handleDelete(c.id, e)}
+                        onClick={(e) => { e.stopPropagation(); setDeleteConfirm(c.id); }}
                         className="w-10 h-10 rounded-lg border border-[var(--border-primary)] flex items-center justify-center text-slate-300 hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-all"
                       >
                         <Trash2 size={16} />
@@ -217,6 +257,62 @@ const MyCases: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Delete Confirm Modal */}
+      <AnimatePresence>
+        {deleteConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center px-4"
+            onClick={() => setDeleteConfirm(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="bg-[var(--bg-secondary)] rounded-[2rem] p-10 max-w-md w-full shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-[var(--border-subtle)] relative overflow-hidden"
+              onClick={e => e.stopPropagation()}
+            >
+              {/* Background Glow */}
+              <div className="absolute -top-24 -right-24 w-48 h-48 bg-red-500/10 blur-[80px] rounded-full" />
+              
+              <div className="relative flex flex-col items-center text-center">
+                <div className="w-20 h-20 bg-red-50 rounded-[1.5rem] flex items-center justify-center mb-8 border border-red-100 shadow-inner">
+                  <AlertTriangle size={40} className="text-red-500" />
+                </div>
+                
+                <h3 className="text-2xl font-serif font-black text-[var(--text-primary)] mb-4 tracking-tight">
+                  {t('cases.delete_confirm_title')}
+                </h3>
+                
+                <p className="text-[var(--text-muted)] text-base font-medium mb-10 leading-relaxed max-w-[280px]">
+                  {t('cases.delete_confirm_msg')}
+                </p>
+                
+                <div className="flex gap-4 w-full">
+                  <button 
+                    onClick={() => setDeleteConfirm(null)} 
+                    disabled={isDeleting}
+                    className="flex-1 h-14 border border-[var(--border-primary)] text-[var(--text-secondary)] font-black text-sm uppercase tracking-widest rounded-xl hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)] transition-all disabled:opacity-50 active:scale-95"
+                  >
+                    {t('common.cancel')}
+                  </button>
+                  <button 
+                    onClick={() => handleDelete(deleteConfirm)} 
+                    disabled={isDeleting}
+                    className="flex-1 h-14 bg-red-500 text-white font-black text-sm uppercase tracking-widest rounded-xl hover:bg-red-600 transition-all shadow-[0_10px_20px_rgba(239,68,68,0.3)] disabled:opacity-50 flex items-center justify-center gap-3 active:scale-95"
+                  >
+                    {isDeleting ? <Loader2 size={18} className="animate-spin" /> : <Trash2 size={18} />}
+                    {t('common.delete')}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

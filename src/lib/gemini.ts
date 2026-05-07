@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import i18n from '../i18n';
+import { explainWithGroq } from './groq';
 
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const XGBOOST_URL = import.meta.env.VITE_XGBOOST_API_URL;
@@ -11,17 +12,17 @@ if (API_KEY) {
   console.warn("BailPredict: Gemini API Key is missing! AI features will use fallback content.");
 }
 
-const safeJsonParse = (text: string, fallback: any) => {
+const safeJsonParse = <T,>(text: string, fallback: T): T => {
   try {
     const clean = text.replace(/```(?:json)?|```/g, '').trim();
     // Try to find JSON block if AI added text around it
     const jsonMatch = clean.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
     if (jsonMatch) {
-      return JSON.parse(jsonMatch[0]);
+      return JSON.parse(jsonMatch[0]) as T;
     }
-    return JSON.parse(clean);
-  } catch (e) {
-    console.error("JSON Parse Failed:", e, "Text:", text);
+    return JSON.parse(clean) as T;
+  } catch (error) {
+    console.error("JSON Parse Failed:", error, "Text:", text);
     return fallback;
   }
 };
@@ -30,7 +31,14 @@ const getLanguageInstruction = () => {
   return i18n.language === 'hi' ? 'IMPORTANT: You MUST respond entirely in Hindi (देवनागरी), except for JSON keys which must remain in English.' : 'Respond in English.';
 };
 
-export const predictBailGemini = async (caseData: any) => {
+export type GeneratedArgument = {
+  ground: string;
+  argument: string;
+  citation: string;
+};
+
+export const predictBailGemini = async (caseData: unknown) => {
+  const cd = (caseData ?? {}) as Record<string, unknown>;
   if (!API_KEY) {
     console.warn("predictBailGemini: No API Key, using fallback.");
     return {
@@ -50,11 +58,11 @@ export const predictBailGemini = async (caseData: any) => {
       Return ONLY raw JSON no markdown no backticks.
       ${getLanguageInstruction()}
       
-      Case: IPC ${caseData.ipc}, Crime: ${caseData.crime},
-      Court: ${caseData.court}, Bail Type: ${caseData.bail_type},
-      Custody: ${caseData.custody} months,
-      First Offender: ${caseData.first_offender},
-      Prior Record: ${caseData.prior_record}
+      Case: IPC ${cd.ipc}, Crime: ${cd.crime},
+      Court: ${cd.court}, Bail Type: ${cd.bail_type},
+      Custody: ${cd.custody} months,
+      First Offender: ${cd.first_offender},
+      Prior Record: ${cd.prior_record}
       
       {"prediction":"Granted","confidence":84,"likelihood":"HIGH",
       "factors":[{"factor":"First time offender","impact":"positive"}]}
@@ -84,7 +92,8 @@ export const predictBailGemini = async (caseData: any) => {
   }
 };
 
-export const generateArguments = async (caseData: any) => {
+export const generateArguments = async (caseData: unknown): Promise<GeneratedArgument[]> => {
+  const cd = (caseData ?? {}) as Record<string, unknown>;
   if (!API_KEY) {
     console.warn("generateArguments: No API Key, using fallback.");
     return [
@@ -100,18 +109,27 @@ export const generateArguments = async (caseData: any) => {
       Return ONLY raw JSON array no markdown no backticks.
       ${getLanguageInstruction()}
       
-      IPC: ${caseData.ipc}, Crime: ${caseData.crime},
-      Court: ${caseData.court}, Custody: ${caseData.custody} months,
-      First Offender: ${caseData.first_offender},
-      Prior Record: ${caseData.prior_record}
+      IPC: ${cd.ipc}, Crime: ${cd.crime},
+      Court: ${cd.court}, Custody: ${cd.custody} months,
+      First Offender: ${cd.first_offender},
+      Prior Record: ${cd.prior_record}
       
       [{"ground":"Title","argument":"2 line argument.","citation":"Case v. Case (year) SCC"}]
       Use only real Indian Supreme Court citations.
     `;
     const result = await model.generateContent(prompt);
     const text = result.response.text();
-    const args = safeJsonParse(text, null);
-    if (args) return args;
+    const args = safeJsonParse<unknown>(text, null);
+    if (Array.isArray(args)) {
+      return args.map((row) => {
+        const r = (row ?? {}) as Record<string, unknown>;
+        return {
+          ground: typeof r.ground === 'string' ? r.ground : 'Ground',
+          argument: typeof r.argument === 'string' ? r.argument : '',
+          citation: typeof r.citation === 'string' ? r.citation : '',
+        };
+      }).filter((a) => a.argument.length > 0);
+    }
     throw new Error("Empty arguments");
   } catch (e) {
     console.error("Gemini Arguments Failed:", e);
@@ -138,7 +156,7 @@ export const explainIPC = async (section: string) => {
     `;
     const result = await model.generateContent(prompt);
     const text = result.response.text();
-    const parsed = safeJsonParse(text, null);
+    const parsed = safeJsonParse<unknown>(text, null);
     if (parsed) return parsed;
     throw new Error("Empty IPC info");
   } catch (e) {
@@ -157,18 +175,19 @@ export const explainIPC = async (section: string) => {
   }
 };
 
-export const generateDraft = async (caseData: any, argumentsList: any[]) => {
+export const generateDraft = async (caseData: unknown, argumentsList: unknown[]) => {
   try {
     const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
+    const cd = (caseData ?? {}) as Record<string, unknown>;
     const prompt = `
       Generate a formal Indian bail application letter.
       ${getLanguageInstruction()}
       
-      Court: ${caseData.court}
-      IPC Section: ${caseData.ipc}
-      Crime: ${caseData.crime}
-      Bail Type: ${caseData.bail_type}
-      State: ${caseData.state || 'India'}
+      Court: ${cd.court}
+      IPC Section: ${cd.ipc}
+      Crime: ${cd.crime}
+      Bail Type: ${cd.bail_type}
+      State: ${cd.state || 'India'}
       Arguments: ${JSON.stringify(argumentsList)}
       
       Return a complete formal bail application 
@@ -184,11 +203,12 @@ export const generateDraft = async (caseData: any, argumentsList: any[]) => {
   }
 };
 
-export const predictBail = async (caseData: any) => {
+export const predictBail = async (caseData: unknown) => {
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000);
     
+    const cd = (caseData ?? {}) as Record<string, unknown>;
     const response = await fetch(
       XGBOOST_URL,
       {
@@ -196,32 +216,33 @@ export const predictBail = async (caseData: any) => {
         headers: { 'Content-Type': 'application/json' },
         signal: controller.signal,
         body: JSON.stringify({
-          "Custody Duration": Number(caseData.custody) || 0,
-          "First Offender": caseData.first_offender === 'Yes' ? 1 : 0,
-          "Prior Record": caseData.prior_record === 'Yes' ? 1 : 0,
-          "Age": Number(caseData.age) || 30,
-          "Crime Severity": Number(caseData.crime_severity) || 3
+          "IPC_Section": parseInt(String(cd.ipc).match(/\d+/)?.[0] || '323'),
+          "Crime": cd.crime || "Other",
+          "Bail_Type": cd.bail_type || "Regular",
+          "Court": cd.court || "Sessions Court",
+          "Custody_Duration_months": Number(cd.custody) || 0,
+          "First_Offender": cd.first_offender || "No",
+          "Prior_Record": cd.prior_record || "No",
+          "Age": Number(cd.age) || 30
         })
       }
     );
     clearTimeout(timeoutId);
     if (!response.ok) throw new Error('Model API returned an error');
     
-    const data = await response.json();
-    console.log("XGBoost API Raw Response:", data);
+    const data: unknown = await response.json();
+    console.log("Prediction API Raw Response:", data);
 
-    // Expected format: { "prediction": 1, "probability": 0.85 }
-    const prob = data.probability !== undefined ? data.probability : 0.5;
-    const confidence = Math.round(prob * 100);
+    const parsed = (data ?? {}) as Record<string, unknown>;
+    const probRaw = parsed.bail_granted_probability;
+    const confidence = typeof probRaw === 'number' ? Math.round(probRaw) : 50;
     
-    // Fix: If prediction is 1 or 0, map it strictly to "Granted" / "Rejected"
-    let finalPrediction = 'Unknown';
-    if (typeof data.prediction === 'number') {
-      finalPrediction = data.prediction === 1 ? 'Granted' : 'Rejected';
-    } else if (typeof data.prediction === 'string') {
-      finalPrediction = data.prediction;
+    let finalPrediction = 'Rejected';
+    const predictionRaw = parsed.prediction;
+    if (typeof predictionRaw === 'string') {
+      finalPrediction = predictionRaw.toLowerCase().includes('granted') ? 'Granted' : 'Rejected';
     } else {
-      finalPrediction = prob > 0.5 ? 'Granted' : 'Rejected';
+      finalPrediction = confidence > 50 ? 'Granted' : 'Rejected';
     }
     
     return {
@@ -229,14 +250,14 @@ export const predictBail = async (caseData: any) => {
       confidence: confidence,
       likelihood: confidence > 70 ? 'HIGH' 
                 : confidence > 40 ? 'MODERATE' : 'LOW',
-      source: 'XGBoost'
+      source: 'Custom XGBoost'
     };
   } catch (error) {
     console.warn('XGBoost failed, using Gemini fallback:', error);
     try {
       const result = await predictBailGemini(caseData);
       return { ...result, source: 'Gemini' };
-    } catch (e) {
+    } catch {
       // Ultimate absolute fallback if both APIs totally fail so UI never breaks
       return {
         prediction: "Granted",
@@ -249,7 +270,16 @@ export const predictBail = async (caseData: any) => {
   }
 };
 
-export const explainBailDecision = async (caseData: any, predictionResult: any) => {
+export const explainBailDecision = async (caseData: unknown, predictionResult: unknown) => {
+  // 1. Try Groq first for extreme speed
+  try {
+    const groqResult = await explainWithGroq(caseData, predictionResult);
+    if (groqResult) return groqResult;
+  } catch (err) {
+    console.warn("Groq explanation failed or key missing, falling back to Gemini:", err);
+  }
+
+  // 2. Fallback to Gemini
   if (!API_KEY) {
     console.warn("explainBailDecision: No API Key, using fallback.");
     return {
@@ -268,6 +298,8 @@ export const explainBailDecision = async (caseData: any, predictionResult: any) 
   }
   try {
     const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
+    const cd = (caseData ?? {}) as Record<string, unknown>;
+    const pr = (predictionResult ?? {}) as Record<string, unknown>;
     const prompt = `
       You are an expert Indian criminal defense legal analyst.
       Based on the following case data and prediction result, explain WHY bail is likely or unlikely.
@@ -275,11 +307,11 @@ export const explainBailDecision = async (caseData: any, predictionResult: any) 
       ${getLanguageInstruction()}
       
       Case Data: 
-      IPC: ${caseData.ipc}, Crime: ${caseData.crime}, Court: ${caseData.court},
-      Custody: ${caseData.custody} months, First Offender: ${caseData.first_offender}, Prior Record: ${caseData.prior_record}
+      IPC: ${cd.ipc}, Crime: ${cd.crime}, Court: ${cd.court},
+      Custody: ${cd.custody} months, First Offender: ${cd.first_offender}, Prior Record: ${cd.prior_record}
       
       Prediction Result: 
-      Outcome: ${predictionResult.prediction}, Confidence: ${predictionResult.confidence}%
+      Outcome: ${pr.prediction}, Confidence: ${pr.confidence}%
       
       Respond with this exact JSON structure (provide exactly 2-3 factors for both categories):
       {
@@ -297,7 +329,7 @@ export const explainBailDecision = async (caseData: any, predictionResult: any) 
     `;
     const result = await model.generateContent(prompt);
     const text = result.response.text();
-    const parsed = safeJsonParse(text, null);
+    const parsed = safeJsonParse<unknown>(text, null);
     if (parsed) return parsed;
     throw new Error("Empty explanation");
   } catch (e) {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -14,7 +14,7 @@ const getHearingStatus = (dateStr: string) => {
   today.setHours(0, 0, 0, 0);
   const hearing = new Date(dateStr);
   const diffDays = Math.ceil((hearing.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-  if (diffDays <= 0)  return { label: 'Overdue',              cls: 'bg-[var(--bg-surface)] text-[var(--text-secondary)] border-[var(--border-primary)]' };
+  if (diffDays < 0)  return { label: 'Overdue',              cls: 'bg-[var(--bg-surface)] text-[var(--text-secondary)] border-[var(--border-primary)]' };
   if (diffDays <= 2)  return { label: `URGENT · ${diffDays}d`, cls: 'bg-red-50 text-red-600 border-red-200' };
   if (diffDays <= 5)  return { label: `SOON · ${diffDays}d`,   cls: 'bg-amber-50 text-amber-600 border-amber-200' };
   return { label: `${diffDays} days away`, cls: 'bg-emerald-50 text-emerald-600 border-emerald-200' };
@@ -23,17 +23,22 @@ const getHearingStatus = (dateStr: string) => {
 const CaseDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [caseData, setCaseData] = useState<any>(null);
+  const [caseData, setCaseData] = useState<{
+    id: string;
+    ipc_section: string;
+    offense: string;
+    court: string;
+    likelihood: string;
+    bail_probability: number;
+    hearing_date: string | null;
+    created_at: string;
+    case_description?: string | null;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    if (!id) { setNotFound(true); setLoading(false); return; }
-    fetchCase();
-  }, [id]);
-
-  const fetchCase = async () => {
+  const fetchCase = useCallback(async () => {
+    if (!id) return;
     console.log('[CaseDetails] fetching id:', id);
     const { data, error } = await supabase
       .from('cases')
@@ -47,7 +52,14 @@ const CaseDetails: React.FC = () => {
       setCaseData(data);
     }
     setLoading(false);
-  };
+  }, [id]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    if (!id) { setNotFound(true); setLoading(false); return; }
+    const timer = window.setTimeout(() => { void fetchCase(); }, 0);
+    return () => window.clearTimeout(timer);
+  }, [id, fetchCase]);
 
   // ── Loading ───────────────────────────────────────────────
   if (loading) {

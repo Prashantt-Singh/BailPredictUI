@@ -5,11 +5,17 @@ import { Scale, AlertTriangle, Bookmark, ArrowRight, Copy, Sparkles, CheckCircle
 import { useTranslation } from 'react-i18next';
 import { predictBail, generateArguments, explainBailDecision } from '../lib/gemini';
 import { supabase } from '../lib/supabase';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import ExplainabilityPanel from '../components/ExplainabilityPanel';
 import SmartVoiceAutoFill from '../components/SmartVoiceAutoFill';
 import type { AutoFillResult } from '../components/SmartVoiceAutoFill';
 import VoiceOutput from '../components/VoiceOutput';
+
+const VoiceBadge: React.FC = () => (
+  <span className="ml-2 inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">
+    <CheckCircle2 size={9} /> Voice
+  </span>
+);
 
 const IPC_CRIME_MAP: Record<string, string> = {
   "Section 302 — Murder": "Murder",
@@ -94,8 +100,17 @@ const Predict: React.FC = () => {
 
    const [status, setStatus] = useState<'idle' | 'predicting' | 'drafting' | 'result' | 'error'>('idle');
    const [loadingText, setLoadingText] = useState('');
-   const [predictionResult, setPredictionResult] = useState<any>(null);
-   const [argumentsList, setArgumentsList] = useState<any[]>([]);
+   const [predictionResult, setPredictionResult] = useState<{
+      prediction?: string;
+      confidence: number;
+      likelihood?: string;
+      source?: string;
+   } | null>(null);
+   const [argumentsList, setArgumentsList] = useState<Array<{
+      ground: string;
+      argument: string;
+      citation?: string;
+   }>>([]);
    const [errorMsg, setErrorMsg] = useState<string>('');
    const [copied, setCopied] = useState(false);
    const [saved, setSaved] = useState(false);
@@ -103,31 +118,33 @@ const Predict: React.FC = () => {
    const [hearingDate, setHearingDate] = useState('');
    const [savingCase, setSavingCase] = useState(false);
    const [saveError, setSaveError] = useState('');
-   const [explanationData, setExplanationData] = useState<any>(null);
+   const [explanationData, setExplanationData] = useState<unknown>(null);
    const [explanationLoading, setExplanationLoading] = useState(false);
    const [voiceFilledFields, setVoiceFilledFields] = useState<string[]>([]);
 
    // Helper: check if a field was voice-filled
    const isVoiceFilled = (field: string) => voiceFilledFields.includes(field);
 
-   // Badge shown on voice-filled fields
-   const VoiceBadge = () => (
-     <span className="ml-2 inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">
-       <CheckCircle2 size={9} /> Voice
-     </span>
-   );
-
    useEffect(() => {
       window.scrollTo(0, 0);
-      if (location.state?.prefilled) {
-         setFormData(prev => ({
-            ...prev,
-            ipc: location.state.offense_type || prev.ipc,
-            crime: location.state.crime || prev.crime,
-            court: location.state.court || prev.court,
-         }));
-      }
-   }, [location]);
+      const state = location.state as Record<string, unknown> | null;
+      if (!state?.prefilled) return;
+      const offenseType = typeof state.offense_type === 'string' ? state.offense_type : undefined;
+      const crime = typeof state.crime === 'string' ? state.crime : undefined;
+      const court = typeof state.court === 'string' ? state.court : undefined;
+
+      // Avoid synchronous setState within effect body (eslint rule)
+      const timer = window.setTimeout(() => {
+        setFormData(prev => ({
+          ...prev,
+          ipc: offenseType || prev.ipc,
+          crime: crime || prev.crime,
+          court: court || prev.court,
+        }));
+      }, 0);
+
+      return () => window.clearTimeout(timer);
+   }, [location.state]);
 
    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
       const { name, value } = e.target;
@@ -216,7 +233,7 @@ const Predict: React.FC = () => {
          } catch (err) {
             console.error("Failed to update stats:", err);
          }
-      } catch (error: any) {
+      } catch (error: unknown) {
          console.error("Prediction Error:", error);
          setErrorMsg('Prediction engines failed. Please check your network and try again.');
          setStatus('error');

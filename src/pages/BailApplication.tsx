@@ -1,12 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FileText, Copy, Download, ArrowLeft, Check, Loader2, BookmarkCheck, Save } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 
-const generateBailApplication = (caseData: any, argumentsList: any[]) => {
+type BailArgument = { argument: string };
+type CaseData = {
+  ipc?: string;
+  crime?: string;
+  court?: string;
+  bail_type?: string;
+  offense?: string;
+  state?: string;
+  custody?: string | number;
+  first_offender?: string;
+  prior_record?: string;
+  age?: string | number;
+  crime_severity?: string | number;
+};
+
+const generateBailApplication = (caseData: CaseData, argumentsList: BailArgument[]) => {
   const today = new Date().toLocaleDateString('en-IN');
   const bailSec = caseData.bail_type === 'Anticipatory' ? '438' : '437/439';
   const argsText = argumentsList.map((arg, i) => `${i + 1}. ${arg.argument}`).join('\n\n');
@@ -37,8 +52,15 @@ const BailApplication: React.FC = () => {
   const { user } = useAuth();
   const { t } = useTranslation();
 
-  const caseData: any = location.state?.caseData;
-  const argumentsList: any[] = location.state?.arguments || [];
+  const caseData = useMemo<CaseData | null>(() => {
+    const state = location.state as { caseData?: CaseData } | null;
+    return state?.caseData ?? null;
+  }, [location.state]);
+
+  const argumentsList = useMemo<BailArgument[]>(() => {
+    const state = location.state as { arguments?: BailArgument[] } | null;
+    return state?.arguments ?? [];
+  }, [location.state]);
 
   const [draft, setDraft] = useState<string>('');
   const [loading, setLoading] = useState(true);

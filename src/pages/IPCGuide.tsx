@@ -15,7 +15,18 @@ const IPCGuide: React.FC = () => {
   const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<{
+    section: string;
+    title: string;
+    description: string;
+    punishment: string;
+    bail_eligibility: string;
+    bail_chances: string;
+    key_elements: string[];
+    landmark_cases: string[];
+    defense_strategies: string[];
+    bail_considerations: string[];
+  } | null>(null);
   const [error, setError] = useState('');
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
@@ -29,32 +40,37 @@ const IPCGuide: React.FC = () => {
     setResult(null);
 
     try {
-      const data = await explainIPC(trimmed);
+      const dataUnknown = await explainIPC(trimmed);
+      const data = (dataUnknown ?? {}) as Record<string, unknown>;
       // Normalise the response so it always has predictable fields
       setResult({
-        section: data?.section ?? trimmed,
-        title: data?.title ?? '',
-        description: data?.description ?? 'No description available.',
-        punishment: data?.punishment ?? '',
-        bail_eligibility: data?.bail_eligibility ?? '',
-        bail_chances: data?.bail_chances ?? '',
+        section: (typeof data.section === 'string' ? data.section : trimmed),
+        title: (typeof data.title === 'string' ? data.title : ''),
+        description: (typeof data.description === 'string' ? data.description : 'No description available.'),
+        punishment: (typeof data.punishment === 'string' ? data.punishment : ''),
+        bail_eligibility: (typeof data.bail_eligibility === 'string' ? data.bail_eligibility : ''),
+        bail_chances: (typeof data.bail_chances === 'string' ? data.bail_chances : ''),
         // key_elements is string[]
-        key_elements: Array.isArray(data?.key_elements) ? data.key_elements.filter(Boolean) : [],
+        key_elements: Array.isArray(data.key_elements) ? (data.key_elements as unknown[]).filter((x): x is string => typeof x === 'string' && x.length > 0) : [],
         // landmark_cases can be string[] OR {case, principle}[]
-        landmark_cases: Array.isArray(data?.landmark_cases)
-          ? data.landmark_cases.map((lc: any) =>
-              typeof lc === 'string' ? lc : `${lc.case ?? ''}${lc.principle ? ` — ${lc.principle}` : ''}`
-            ).filter(Boolean)
+        landmark_cases: Array.isArray(data.landmark_cases)
+          ? (data.landmark_cases as unknown[]).map((lc) => {
+              if (typeof lc === 'string') return lc;
+              const obj = (lc ?? {}) as Record<string, unknown>;
+              const caseName = typeof obj.case === 'string' ? obj.case : '';
+              const principle = typeof obj.principle === 'string' ? obj.principle : '';
+              return `${caseName}${principle ? ` — ${principle}` : ''}`.trim();
+            }).filter((x): x is string => typeof x === 'string' && x.length > 0)
           : [],
         // API returns defense_tips OR defense_strategies
-        defense_strategies: Array.isArray(data?.defense_tips)
-          ? data.defense_tips.filter(Boolean)
-          : Array.isArray(data?.defense_strategies)
-          ? data.defense_strategies.filter(Boolean)
+        defense_strategies: Array.isArray(data.defense_tips)
+          ? (data.defense_tips as unknown[]).filter((x): x is string => typeof x === 'string' && x.length > 0)
+          : Array.isArray(data.defense_strategies)
+          ? (data.defense_strategies as unknown[]).filter((x): x is string => typeof x === 'string' && x.length > 0)
           : [],
         // bail_considerations as optional
-        bail_considerations: Array.isArray(data?.bail_considerations)
-          ? data.bail_considerations.filter(Boolean)
+        bail_considerations: Array.isArray(data.bail_considerations)
+          ? (data.bail_considerations as unknown[]).filter((x): x is string => typeof x === 'string' && x.length > 0)
           : [],
       });
     } catch (err) {

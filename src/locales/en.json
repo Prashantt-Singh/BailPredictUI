@@ -1,4 +1,9 @@
 {
+  "common": {
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "confirm": "Confirm"
+  },
   "nav": {
     "home": "Home",
     "predict": "Predict",
@@ -187,7 +192,9 @@
     "overdue": "OVERDUE",
     "urgent": "URGENT",
     "soon": "SOON",
-    "days": "days"
+    "days": "days",
+    "delete_confirm_title": "Delete Case Archive?",
+    "delete_confirm_msg": "This action is irreversible. All prediction data, hearing dates, and history for this case will be permanently erased from your workspace."
   },
   "draft": {
     "back": "Back",
@@ -203,7 +210,9 @@
     "generating": "Generating draft…",
     "generating_sub": "Drafting formal bail application clauses.",
     "draft_saved_msg": "Draft saved to your account.",
-    "view_drafts": "View My Drafts"
+    "view_drafts": "View My Drafts",
+    "delete_confirm_title": "Delete Draft?",
+    "delete_confirm_msg": "This action cannot be undone. The draft will be permanently removed from your account."
   },
   "auth": {
     "login": {

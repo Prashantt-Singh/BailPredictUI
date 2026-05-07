@@ -41,9 +41,10 @@ const Signup: React.FC = () => {
       });
 
       if (error) {
+        const status = (error as { status?: number } | null)?.status;
         if (error.message.includes('User already registered') || 
             error.message.includes('already registered') ||
-            (error as any).status === 400) {
+            status === 400) {
           setError('This email is already registered. Please sign in instead.');
           return;
         }
@@ -59,8 +60,9 @@ const Signup: React.FC = () => {
       }
 
       setSuccess(true);
-    } catch (err: any) {
-      setError(err.message || 'Signup failed. Please try again.');
+    } catch (err: unknown) {
+      const msg = (err as { message?: string } | null)?.message;
+      setError(msg || 'Signup failed. Please try again.');
     } finally {
       setLoading(false);
     }

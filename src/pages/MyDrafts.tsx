@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FileText, Download, Copy, Trash2, Edit3, Check, ArrowLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { FileText, Download, Copy, Trash2, Edit3, Check, ArrowLeft, ChevronRight, Loader2, AlertTriangle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { jsPDF } from 'jspdf';
 
 interface Draft {
@@ -16,6 +17,8 @@ interface Draft {
 const MyDrafts: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useTranslation();
+  const userId = user?.id;
 
   const [drafts, setDrafts] = useState<Draft[]>([]);
   const [loading, setLoading] = useState(true);
@@ -25,21 +28,22 @@ const MyDrafts: React.FC = () => {
   const [copied, setCopied] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    if (user) fetchDrafts();
-  }, [user]);
-
-  const fetchDrafts = async () => {
+  const fetchDrafts = useCallback(async () => {
+    if (!userId) return;
     setLoading(true);
     const { data, error } = await supabase
       .from('drafts')
       .select('*')
-      .eq('user_id', user!.id)
+      .eq('user_id', userId)
       .order('created_at', { ascending: false });
     if (!error && data) setDrafts(data as Draft[]);
     setLoading(false);
-  };
+  }, [userId]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    if (userId) fetchDrafts();
+  }, [userId, fetchDrafts]);
 
   const handleOpen = (draft: Draft) => {
     setSelectedDraft(draft);
@@ -47,12 +51,12 @@ const MyDrafts: React.FC = () => {
   };
 
   const handleSaveEdit = async () => {
-    if (!selectedDraft) return;
+    if (!selectedDraft || !userId) return;
     setSaving(true);
     const { error } = await supabase
       .from('drafts')
       .update({ draft_text: editedText })
-      .eq('id', selectedDraft.id);
+      .match({ id: selectedDraft.id, user_id: userId });
     if (!error) {
       setDrafts(prev => prev.map(d => d.id === selectedDraft.id ? { ...d, draft_text: editedText } : d));
       setSelectedDraft(prev => prev ? { ...prev, draft_text: editedText } : null);
@@ -61,18 +65,44 @@ const MyDrafts: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
-    const { error } = await supabase.from('drafts').delete().eq('id', id);
-    if (!error) {
-      setDrafts(prev => prev.filter(d => d.id !== id));
-      if (selectedDraft?.id === id) setSelectedDraft(null);
+    if (!userId) return;
+    
+    try {
+      // Delete by ID only to narrow down permission issues
+      const { data, error, status } = await supabase
+        .from('drafts')
+        .delete()
+        .eq('id', id)
+        .select();
+        
+      if (!error && data && data.length > 0) {
+        setDrafts(prev => prev.filter(d => d.id !== id));
+        if (selectedDraft?.id === id) setSelectedDraft(null);
+      } else if (error) {
+        console.error('Delete error:', error);
+        alert(`Draft Delete Error: ${error.message} (Code: ${error.code || status})`);
+      } else {
+        alert("CRITICAL: Draft deletion blocked. Please enable 'DELETE' permissions for the 'drafts' table in your Supabase Dashboard RLS policies.");
+        setDrafts(prev => prev.filter(d => d.id !== id));
+        if (selectedDraft?.id === id) setSelectedDraft(null);
+      }
+    } catch (err) {
+      console.error('Delete exception:', err);
     }
     setDeleteConfirm(null);
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(editedText);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    const doCopy = async () => {
+      try {
+        await navigator.clipboard.writeText(editedText);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch (e) {
+        console.error('Clipboard copy failed:', e);
+      }
+    };
+    void doCopy();
   };
 
   const handleDownloadPDF = () => {
@@ -250,21 +280,43 @@ const MyDrafts: React.FC = () => {
             onClick={() => setDeleteConfirm(null)}
           >
             <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-[var(--bg-secondary)] rounded-2xl p-8 max-w-sm w-full shadow-2xl"
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="bg-[var(--bg-secondary)] rounded-[2rem] p-10 max-w-md w-full shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-[var(--border-subtle)] relative overflow-hidden"
               onClick={e => e.stopPropagation()}
             >
-              <h3 className="font-black text-[var(--text-primary)] text-lg mb-2">Delete Draft?</h3>
-              <p className="text-[var(--text-muted)] text-sm font-medium mb-8">This action cannot be undone. The draft will be permanently removed.</p>
-              <div className="flex gap-3">
-                <button onClick={() => setDeleteConfirm(null)} className="flex-1 h-11 border border-[var(--border-primary)] text-[var(--text-secondary)] font-black text-sm rounded-xl hover:border-[var(--border-primary)] transition-all">
-                  Cancel
-                </button>
-                <button onClick={() => handleDelete(deleteConfirm)} className="flex-1 h-11 bg-red-500 text-[var(--btn-primary-text)] font-black text-sm rounded-xl hover:bg-red-600 transition-all">
-                  Delete
-                </button>
+              {/* Background Glow */}
+              <div className="absolute -top-24 -right-24 w-48 h-48 bg-red-500/10 blur-[80px] rounded-full" />
+              
+              <div className="relative flex flex-col items-center text-center">
+                <div className="w-20 h-20 bg-red-50 rounded-[1.5rem] flex items-center justify-center mb-8 border border-red-100 shadow-inner">
+                  <AlertTriangle size={40} className="text-red-500" />
+                </div>
+                
+                <h3 className="text-2xl font-serif font-black text-[var(--text-primary)] mb-4 tracking-tight">
+                  {t('draft.delete_confirm_title') || 'Delete Draft?'}
+                </h3>
+                
+                <p className="text-[var(--text-muted)] text-base font-medium mb-10 leading-relaxed max-w-[280px]">
+                  {t('draft.delete_confirm_msg') || 'This action cannot be undone. The draft will be permanently removed from your account.'}
+                </p>
+                
+                <div className="flex gap-4 w-full">
+                  <button 
+                    onClick={() => setDeleteConfirm(null)} 
+                    className="flex-1 h-14 border border-[var(--border-primary)] text-[var(--text-secondary)] font-black text-sm uppercase tracking-widest rounded-xl hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)] transition-all active:scale-95"
+                  >
+                    {t('common.cancel')}
+                  </button>
+                  <button 
+                    onClick={() => handleDelete(deleteConfirm)} 
+                    className="flex-1 h-14 bg-red-500 text-white font-black text-sm uppercase tracking-widest rounded-xl hover:bg-red-600 transition-all shadow-[0_10px_20px_rgba(239,68,68,0.3)] flex items-center justify-center gap-3 active:scale-95"
+                  >
+                    <Trash2 size={18} />
+                    {t('common.delete')}
+                  </button>
+                </div>
               </div>
             </motion.div>
           </motion.div>

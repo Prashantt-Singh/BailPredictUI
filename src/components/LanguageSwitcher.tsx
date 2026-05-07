@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 
 const LanguageSwitcher: React.FC = () => {
   const { i18n } = useTranslation();
-  const [lang, setLang] = useState(i18n.language);
+  const [lang, setLang] = useState(() => i18n.language);
 
   const toggleLanguage = () => {
     const newLang = lang === 'en' ? 'hi' : 'en';
@@ -15,7 +15,8 @@ const LanguageSwitcher: React.FC = () => {
 
   useEffect(() => {
     // Sync state if language changes elsewhere
-    setLang(i18n.language);
+    const timer = window.setTimeout(() => setLang(i18n.language), 0);
+    return () => window.clearTimeout(timer);
   }, [i18n.language]);
 
   return (

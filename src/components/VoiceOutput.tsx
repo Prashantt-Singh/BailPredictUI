@@ -11,16 +11,12 @@ interface VoiceOutputProps {
 const VoiceOutput: React.FC<VoiceOutputProps> = ({ text, className = '', buttonText = false }) => {
   const { t, i18n } = useTranslation();
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isSupported, setIsSupported] = useState(true);
+  const [isSupported] = useState(() => typeof window !== 'undefined' && Boolean(window.speechSynthesis));
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !window.speechSynthesis) {
-      setIsSupported(false);
-    }
-    
     // Cleanup on unmount
     return () => {
-      if (window.speechSynthesis) {
+      if (typeof window !== 'undefined' && window.speechSynthesis) {
         window.speechSynthesis.cancel();
       }
     };

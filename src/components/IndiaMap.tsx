@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { geoIdentity, geoPath } from 'd3-geo';
+import type { GeoPermissibleObjects } from 'd3-geo';
 import indiaGeoJson from '../data/india.geo.json';
 import { STATE_NAME_TO_CODE } from '../data/stateMapping';
 
@@ -16,7 +17,7 @@ const IndiaMap: React.FC<IndiaMapProps> = ({ data, onStateClick, selectedStateCo
   const projection = useMemo(() => {
     return geoIdentity()
       .reflectY(true) // Flip Y axis because SVG Y goes down but maps go up
-      .fitSize([600, 700], indiaGeoJson as any);
+      .fitSize([600, 700], indiaGeoJson as unknown as GeoPermissibleObjects);
   }, []);
 
   const pathGenerator = useMemo(() => geoPath().projection(projection), [projection]);
@@ -42,11 +43,14 @@ const IndiaMap: React.FC<IndiaMapProps> = ({ data, onStateClick, selectedStateCo
         </filter>
       </defs>
       <g>
-        {indiaGeoJson.features.map((feature: any, i: number) => {
+        {indiaGeoJson.features.map((featureUnknown: unknown, i: number) => {
+          const feature = featureUnknown as { properties: Record<string, unknown> };
           // Let's use `hc-key` (which are full lowercase names here) to get standard state codes
-          const hcKey = (feature.properties['hc-key'] || '').toLowerCase();
+          const hcKeyRaw = feature.properties['hc-key'];
+          const hcKey = (typeof hcKeyRaw === 'string' ? hcKeyRaw : '').toLowerCase();
           const stateCode = STATE_NAME_TO_CODE[hcKey] || hcKey.toUpperCase();
-          const stateName = feature.properties.name || hcKey;
+          const stateNameRaw = feature.properties.name;
+          const stateName = typeof stateNameRaw === 'string' ? stateNameRaw : hcKey;
           
           const grantRate = data[stateCode];
           const isSelected = selectedStateCode === stateCode;

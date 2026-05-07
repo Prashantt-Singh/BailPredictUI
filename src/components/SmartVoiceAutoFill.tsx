@@ -4,6 +4,25 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { parseVoiceTranscript } from '../lib/gemini';
 import type { VoiceParsedData } from '../lib/gemini';
 
+type SpeechRecognitionCtor = new () => SpeechRecognitionLike;
+type SpeechRecognitionLike = {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onstart: null | (() => void);
+  onend: null | (() => void);
+  onerror: null | ((e: SpeechRecognitionErrorLike) => void);
+  onresult: null | ((e: SpeechRecognitionResultLike) => void);
+  start: () => void;
+  stop: () => void;
+};
+
+type SpeechRecognitionErrorLike = { error?: string };
+type SpeechRecognitionResultLike = {
+  resultIndex: number;
+  results: ArrayLike<{ isFinal: boolean; 0: { transcript: string } }>;
+};
+
 export interface AutoFillResult {
   data: Partial<{
     ipc: string;
@@ -36,23 +55,26 @@ const FIELD_LABELS: Record<string, string> = {
 };
 
 const SmartVoiceAutoFill: React.FC<Props> = ({ onAutoFill }) => {
-  const [isSupported, setIsSupported] = useState(true);
+  const [isSupported] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const w = window as unknown as Record<string, unknown>;
+    return Boolean(w.SpeechRecognition || w.webkitSpeechRecognition);
+  });
   const [step, setStep] = useState<Step>('idle');
   const [lang, setLang] = useState<'en' | 'hi'>('en');
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const transcriptRef = useRef<string>('');
 
   useEffect(() => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      setIsSupported(false);
-      return;
-    }
+    if (!isSupported) return;
+    const w = window as unknown as Record<string, unknown>;
+    const SpeechRecognition = (w.SpeechRecognition || w.webkitSpeechRecognition) as SpeechRecognitionCtor | undefined;
+    if (!SpeechRecognition) return;
     const recog = new SpeechRecognition();
     recog.continuous = true;
     recog.interimResults = true;
     recognitionRef.current = recog;
-  }, []);
+  }, [isSupported]);
 
   const handleTranscript = useCallback(async (transcript: string) => {
     setStep('parsing');
@@ -102,27 +124,26 @@ const SmartVoiceAutoFill: React.FC<Props> = ({ onAutoFill }) => {
       // We will handle the transcript processing in stopListening, or here if it stopped automatically.
       const text = transcriptRef.current.trim();
       if (text) {
-        handleTranscript(text);
+        void handleTranscript(text);
         transcriptRef.current = ''; // prevent double processing
       } else {
         setStep(prev => prev === 'listening' ? 'idle' : prev);
       }
     };
-    recog.onerror = (e: any) => {
+    recog.onerror = (e) => {
       if (e.error === 'no-speech') {
         // do nothing, let it keep listening or handle timeout gracefully
       } else {
         setStep('idle');
       }
     };
-    recog.onresult = (e: any) => {
-      let interim = '';
+    recog.onresult = (e) => {
       let final = '';
       for (let i = e.resultIndex; i < e.results.length; ++i) {
         if (e.results[i].isFinal) {
           final += e.results[i][0].transcript;
         } else {
-          interim += e.results[i][0].transcript;
+          // ignore interim transcript for auto-fill
         }
       }
       if (final) {

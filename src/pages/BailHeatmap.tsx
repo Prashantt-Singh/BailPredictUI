@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Map, MapPin, Scale, X, Loader2, AlertCircle, TrendingUp, TrendingDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -6,10 +6,11 @@ import { useTranslation } from 'react-i18next';
 import IndiaMap from '../components/IndiaMap';
 import { supabase } from '../lib/supabase';
 import { SEED_DATA, IPC_SECTIONS } from '../data/seedStatistics';
+import type { BailStatisticRow } from '../data/seedStatistics';
 
 const BailHeatmap: React.FC = () => {
   const { t } = useTranslation();
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<BailStatisticRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedIpc, setSelectedIpc] = useState<string>('All Sections');
   
@@ -17,12 +18,7 @@ const BailHeatmap: React.FC = () => {
   const [selectedStateCode, setSelectedStateCode] = useState<string | null>(null);
   const [selectedStateName, setSelectedStateName] = useState<string>('');
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const { data: dbData, error } = await supabase.from('bail_statistics').select('*');
@@ -31,13 +27,21 @@ const BailHeatmap: React.FC = () => {
         console.warn('Using seed data for heatmap', error);
         setData(SEED_DATA);
       } else {
-        setData(dbData);
+        setData(dbData as BailStatisticRow[]);
       }
-    } catch (e) {
+    } catch {
       setData(SEED_DATA);
     }
     setLoading(false);
-  };
+  }, []);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    const timer = window.setTimeout(() => {
+      void fetchData();
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [fetchData]);
 
   const filteredData = useMemo(() => {
     if (selectedIpc === 'All Sections') return data;

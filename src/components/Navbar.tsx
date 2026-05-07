@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { LogOut, User as UserIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from './LanguageSwitcher';
-import { useTheme } from '../context/ThemeContext';
+import { useTheme } from '../context/useTheme';
 import { Moon, Sun } from 'lucide-react';
 
 const Navbar: React.FC = () => {
@@ -44,18 +44,18 @@ const Navbar: React.FC = () => {
           : 'bg-transparent h-[80px]'
       }`}
     >
-      <div className="max-w-6xl mx-auto h-full flex items-center justify-between px-6">
+      <div className="max-w-[1400px] mx-auto h-full flex items-center justify-between px-6">
 
         {/* Logo */}
         <button
           onClick={() => navigate('/')}
-          className="flex items-center gap-4 group -ml-24 hover:scale-105 transition-transform duration-500"
+          className="flex items-center gap-3 group -ml-12 hover:scale-105 transition-transform duration-500"
         >
           <div className="relative">
             <div className="absolute inset-0 bg-[#C9A84C]/30 blur-xl rounded-full group-hover:bg-[#C9A84C]/50 transition-all duration-700 animate-pulse"></div>
-            <img src="/logo.jpg" alt="BailPredict Logo" className="w-11 h-11 object-contain rounded-xl shadow-[0_0_20px_rgba(201,168,76,0.3)] border-2 border-[#C9A84C]/30 relative z-10 group-hover:rotate-[360deg] transition-all duration-1000" />
+            <img src="/logo.jpg" alt="BailPredict Logo" className="w-9 h-9 object-contain rounded-xl shadow-[0_0_20px_rgba(201,168,76,0.3)] border-2 border-[#C9A84C]/30 relative z-10 group-hover:rotate-[360deg] transition-all duration-1000" />
           </div>
-          <span className="text-[28px] font-serif font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-[#C9A84C] via-[var(--text-primary)] to-[#C9A84C] bg-[length:200%_auto] animate-gradient drop-shadow-lg scale-y-110">
+          <span className="text-[22px] font-serif font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[#C9A84C] via-[var(--text-primary)] to-[#C9A84C] bg-[length:200%_auto] animate-gradient drop-shadow-lg scale-y-110">
             BailPredict
           </span>
         </button>
@@ -145,7 +145,7 @@ const Navbar: React.FC = () => {
                 className={`h-11 px-8 text-[15px] font-black rounded-xl transition-all relative overflow-hidden border-2 ${
                   location.pathname === '/signup' 
                     ? 'bg-[#C9A84C] text-black border-[#C9A84C] shadow-[0_0_20px_rgba(201,168,76,0.3)]' 
-                    : 'bg-[var(--text-primary)] text-[var(--bg-primary)] border-[var(--text-primary)] hover:opacity-90'
+                    : 'bg-[#C9A84C]/10 text-[#C9A84C] border-[#C9A84C]/40 hover:bg-[#C9A84C] hover:text-black hover:border-[#C9A84C]'
                 }`}
               >
                 {t('nav.get_started')}

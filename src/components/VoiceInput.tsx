@@ -1,7 +1,22 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Mic, MicOff } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
+
+type SpeechRecognitionCtor = new () => SpeechRecognitionLike;
+type SpeechRecognitionLike = {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onstart: null | (() => void);
+  onend: null | (() => void);
+  onerror: null | ((e: SpeechRecognitionErrorLike) => void);
+  onresult: null | ((e: SpeechRecognitionResultLike) => void);
+  start: () => void;
+  stop: () => void;
+};
+type SpeechRecognitionErrorLike = { error?: string };
+type SpeechRecognitionResultLike = { results: ArrayLike<ArrayLike<{ transcript: string }>> };
 
 interface VoiceInputProps {
   onTranscript: (text: string) => void;
@@ -11,43 +26,47 @@ interface VoiceInputProps {
 const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript, className = '' }) => {
   const { t, i18n } = useTranslation();
   const [isListening, setIsListening] = useState(false);
-  const [isSupported, setIsSupported] = useState(true);
-  const [recognition, setRecognition] = useState<any>(null);
+  const [isSupported] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const w = window as unknown as Record<string, unknown>;
+    return Boolean(w.SpeechRecognition || w.webkitSpeechRecognition);
+  });
+  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      if (SpeechRecognition) {
-        const recog = new SpeechRecognition();
-        recog.continuous = false;
-        recog.interimResults = false;
-        
-        recog.onstart = () => {
-          setIsListening(true);
-        };
-        
-        recog.onresult = (event: any) => {
-          const transcript = event.results[0][0].transcript;
-          onTranscript(transcript);
-        };
-        
-        recog.onerror = (event: any) => {
-          console.error('Speech recognition error', event.error);
-          setIsListening(false);
-        };
-        
-        recog.onend = () => {
-          setIsListening(false);
-        };
+    if (!isSupported) return;
+    const w = window as unknown as Record<string, unknown>;
+    const SpeechRecognition = (w.SpeechRecognition || w.webkitSpeechRecognition) as SpeechRecognitionCtor | undefined;
+    if (!SpeechRecognition) return;
 
-        setRecognition(recog);
-      } else {
-        setIsSupported(false);
-      }
-    }
-  }, [onTranscript]);
+    const recog = new SpeechRecognition();
+    recog.continuous = false;
+    recog.interimResults = false;
+    recog.onstart = () => setIsListening(true);
+    recog.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      onTranscript(transcript);
+    };
+    recog.onerror = (event) => {
+      console.error('Speech recognition error', event.error);
+      setIsListening(false);
+    };
+    recog.onend = () => setIsListening(false);
+
+    recognitionRef.current = recog;
+
+    return () => {
+      recog.onstart = null;
+      recog.onresult = null;
+      recog.onerror = null;
+      recog.onend = null;
+      try { recog.stop(); } catch { /* ignore */ }
+      if (recognitionRef.current === recog) recognitionRef.current = null;
+    };
+  }, [onTranscript, isSupported]);
 
   const toggleListening = useCallback(() => {
+    const recognition = recognitionRef.current;
     if (!recognition) return;
     
     if (isListening) {
@@ -61,7 +80,7 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript, className = '' })
         console.error(e);
       }
     }
-  }, [recognition, isListening, i18n.language]);
+  }, [isListening, i18n.language]);
 
   if (!isSupported) {
     return null;

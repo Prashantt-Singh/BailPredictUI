@@ -35,8 +35,9 @@ const Login: React.FC = () => {
 
       if (error) throw error;
       navigate(from, { replace: true });
-    } catch (err: any) {
-      setError(err.message || 'Invalid login credentials.');
+    } catch (err: unknown) {
+      const msg = (err as { message?: string } | null)?.message;
+      setError(msg || 'Invalid login credentials.');
     } finally {
       setLoading(false);
     }
@@ -51,8 +52,9 @@ const Login: React.FC = () => {
         },
       });
       if (error) throw error;
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const msg = (err as { message?: string } | null)?.message;
+      setError(msg || 'Google sign-in failed.');
     }
   };
 

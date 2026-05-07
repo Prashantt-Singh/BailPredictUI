@@ -18,9 +18,19 @@ export const IPC_SECTIONS = [
   "NDPS Act — Drug Offense"
 ];
 
+export type BailStatisticRow = {
+  state_code: string;
+  court_level: string;
+  ipc_section: string;
+  total_cases: number;
+  granted_count: number;
+  grant_rate: number;
+  avg_confidence: number;
+};
+
 // Generate realistic looking seed data
 export const generateSeedData = () => {
-  const data: any[] = [];
+  const data: BailStatisticRow[] = [];
   
   STATE_CODES.forEach(state_code => {
     // Base grant rate per state (randomized between 35% and 65%)

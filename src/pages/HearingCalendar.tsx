@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Download, CheckCircle2 } from 'lucide-react';
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Download, CheckCircle2, Activity } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 
 interface CaseHearing {
   id: string;
@@ -18,31 +18,49 @@ const HearingCalendar: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { t } = useTranslation();
+  const userId = user?.id;
   
   const [currentDate, setCurrentDate] = useState(new Date());
   const [hearings, setHearings] = useState<CaseHearing[]>([]);
   const [loading, setLoading] = useState(true);
   const [isExporting, setIsExporting] = useState(false);
 
-  useEffect(() => {
-    if (user) {
-      fetchHearings();
-    }
-  }, [user]);
-
-  const fetchHearings = async () => {
+  const fetchHearings = useCallback(async () => {
+    if (!userId) return;
     setLoading(true);
     const { data, error } = await supabase
       .from('cases')
       .select('id, ipc_section, offense, hearing_date, court')
       .not('hearing_date', 'is', null)
-      .eq('user_id', user?.id);
+      .eq('user_id', userId);
 
     if (!error && data) {
       setHearings(data as CaseHearing[]);
     }
     setLoading(false);
-  };
+  }, [userId]);
+
+  useEffect(() => {
+    if (!userId) return;
+    const timer = window.setTimeout(() => { void fetchHearings(); }, 0);
+    return () => window.clearTimeout(timer);
+  }, [userId, fetchHearings]);
+
+  // Listen for case deletions to refresh hearings
+  useEffect(() => {
+    const handler = () => {
+      fetchHearings();
+    };
+    if (typeof window !== 'undefined' && window.addEventListener) {
+      window.addEventListener('casesUpdated', handler);
+    }
+    return () => {
+      if (typeof window !== 'undefined' && window.removeEventListener) {
+        window.removeEventListener('casesUpdated', handler);
+      }
+    };
+  }, [fetchHearings]);
+
 
   const nextMonth = () => {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
@@ -208,6 +226,16 @@ const HearingCalendar: React.FC = () => {
           </div>
           
           <div className="flex items-center gap-4">
+            <button 
+              onClick={fetchHearings}
+              className="p-3 hover:bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors rounded-lg border border-[var(--border-primary)]"
+              title="Refresh Hearings"
+            >
+              <motion.div animate={loading ? { rotate: 360 } : {}} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
+                 <Activity size={20} />
+              </motion.div>
+            </button>
+            
             <div className="flex bg-[var(--bg-surface)] border border-[var(--border-primary)] rounded-lg overflow-hidden">
               <button onClick={prevMonth} className="p-3 hover:bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
                 <ChevronLeft size={20} />
