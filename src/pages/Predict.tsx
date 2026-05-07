@@ -162,25 +162,23 @@ const Predict: React.FC = () => {
    };
 
    const handleAutoFill = useCallback((result: AutoFillResult) => {
-      console.log("📥 AutoFill Received Data:", result);
       setFormData(prev => {
         const next = { ...prev };
-        if (result.data.ipc) {
-          console.log("📍 Setting IPC to:", result.data.ipc);
+        if (result.data.ipc !== undefined && result.data.ipc !== null) {
           next.ipc = result.data.ipc;
           next.crime = IPC_CRIME_MAP[result.data.ipc] || prev.crime;
         }
-        if (result.data.bail_type) next.bail_type = result.data.bail_type;
-        if (result.data.court) next.court = result.data.court;
-        if (result.data.custody) next.custody = result.data.custody;
-        if (result.data.age) next.age = result.data.age;
-        if (result.data.first_offender) next.first_offender = result.data.first_offender;
-        if (result.data.prior_record) next.prior_record = result.data.prior_record;
-        if (result.data.description) next.description = result.data.description;
+        if (result.data.bail_type !== undefined && result.data.bail_type !== null) next.bail_type = result.data.bail_type;
+        if (result.data.court !== undefined && result.data.court !== null) next.court = result.data.court;
+        if (result.data.custody !== undefined && result.data.custody !== null) next.custody = result.data.custody;
+        if (result.data.age !== undefined && result.data.age !== null) next.age = result.data.age;
+        if (result.data.first_offender !== undefined && result.data.first_offender !== null) next.first_offender = result.data.first_offender;
+        if (result.data.prior_record !== undefined && result.data.prior_record !== null) next.prior_record = result.data.prior_record;
+        if (result.data.description !== undefined && result.data.description !== null) next.description = result.data.description;
         return next;
       });
       setVoiceFilledFields(result.filledFields);
-   }, []);
+    }, []);
 
 
 

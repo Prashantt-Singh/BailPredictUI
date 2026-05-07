@@ -256,21 +256,26 @@ const IPCGuide: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Key Elements */}
                 {result.key_elements?.length > 0 && (
-                  <div className="bg-[var(--bg-primary)]/50 rounded-[2rem] p-8 border border-[var(--border-subtle)] shadow-sm relative hover:border-[#C9A84C]/30 transition-colors">
-                    <div className="absolute top-6 right-6">
+                  <div className="bg-[var(--bg-secondary)] rounded-[2.5rem] p-8 border border-indigo-500/10 shadow-[0_4px_20px_rgba(79,70,229,0.05)] relative overflow-hidden group hover:border-indigo-500/30 transition-all duration-500">
+                    <div className="absolute -right-4 -top-4 w-24 h-24 bg-indigo-500/5 rounded-full blur-2xl group-hover:bg-indigo-500/10 transition-colors"></div>
+                    <div className="absolute top-6 right-6 z-10">
                       <VoiceOutput text={result.key_elements.join('. ')} />
                     </div>
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="w-8 h-8 rounded-lg bg-[#C9A84C]/10 flex items-center justify-center border border-[#C9A84C]/20">
-                        <FileQuestion size={16} className="text-[#C9A84C]" />
+                    <div className="flex items-center gap-3 mb-8 relative z-10">
+                      <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20 shadow-sm">
+                        <FileQuestion size={20} className="text-indigo-500" />
                       </div>
-                      <h3 className="font-bold text-lg text-[var(--text-primary)]">{t('ipc.result.key_elements')}</h3>
+                      <h3 className="font-black text-xl text-[var(--text-primary)] tracking-tight">{t('ipc.result.key_elements')}</h3>
                     </div>
-                    <ul className="space-y-4">
+                    <ul className="space-y-4 relative z-10">
                       {result.key_elements.map((el: string, i: number) => (
-                        <li key={i} className="flex items-start gap-3 text-sm text-[var(--text-secondary)] font-medium leading-relaxed group">
-                          <Check size={16} className="text-[#C9A84C]/50 mt-0.5 shrink-0 group-hover:text-[#C9A84C] transition-colors" />
-                          <span className="group-hover:text-[var(--text-primary)] transition-colors">{String(el)}</span>
+                        <li key={i} className="flex items-start gap-4 p-3 rounded-2xl hover:bg-indigo-500/5 transition-colors group/item">
+                          <div className="w-6 h-6 rounded-lg bg-indigo-500/10 flex items-center justify-center shrink-0 mt-0.5 group-hover/item:bg-indigo-500 group-hover/item:text-white transition-all">
+                            <Check size={14} className="text-indigo-500 group-hover/item:text-white" />
+                          </div>
+                          <span className="text-[var(--text-secondary)] font-semibold text-[15px] leading-relaxed group-hover/item:text-[var(--text-primary)] transition-colors">
+                            {String(el)}
+                          </span>
                         </li>
                       ))}
                     </ul>
@@ -279,21 +284,26 @@ const IPCGuide: React.FC = () => {
 
                 {/* Defense Strategies / Tips */}
                 {result.defense_strategies?.length > 0 && (
-                  <div className="bg-[var(--bg-primary)]/50 rounded-[2rem] p-8 border border-[var(--border-subtle)] shadow-sm relative hover:border-[#C9A84C]/30 transition-colors">
-                    <div className="absolute top-6 right-6">
+                  <div className="bg-[var(--bg-secondary)] rounded-[2.5rem] p-8 border border-emerald-500/10 shadow-[0_4px_20px_rgba(16,185,129,0.05)] relative overflow-hidden group hover:border-emerald-500/30 transition-all duration-500">
+                    <div className="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl group-hover:bg-emerald-500/10 transition-colors"></div>
+                    <div className="absolute top-6 right-6 z-10">
                       <VoiceOutput text={result.defense_strategies.join('. ')} />
                     </div>
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="w-8 h-8 rounded-lg bg-[#C9A84C]/10 flex items-center justify-center border border-[#C9A84C]/20">
-                        <Lightbulb size={16} className="text-[#C9A84C]" />
+                    <div className="flex items-center gap-3 mb-8 relative z-10">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-sm">
+                        <Lightbulb size={20} className="text-emerald-500" />
                       </div>
-                      <h3 className="font-bold text-lg text-[var(--text-primary)]">{t('ipc.result.defense_strategies')}</h3>
+                      <h3 className="font-black text-xl text-[var(--text-primary)] tracking-tight">{t('ipc.result.defense_strategies')}</h3>
                     </div>
-                    <ul className="space-y-4">
+                    <ul className="space-y-4 relative z-10">
                       {result.defense_strategies.map((s: string, i: number) => (
-                        <li key={i} className="flex items-start gap-3 text-sm text-[var(--text-secondary)] font-medium leading-relaxed group">
-                          <ChevronRight size={16} className="text-[#C9A84C]/50 mt-0.5 shrink-0 group-hover:text-[#C9A84C] transition-colors" />
-                          <span className="group-hover:text-[var(--text-primary)] transition-colors">{String(s)}</span>
+                        <li key={i} className="flex items-start gap-4 p-3 rounded-2xl hover:bg-emerald-500/5 transition-colors group/item">
+                          <div className="w-6 h-6 rounded-lg bg-emerald-500/10 flex items-center justify-center shrink-0 mt-0.5 group-hover/item:bg-emerald-500 group-hover/item:text-white transition-all">
+                            <ChevronRight size={14} className="text-emerald-500 group-hover/item:text-white" />
+                          </div>
+                          <span className="text-[var(--text-secondary)] font-semibold text-[15px] leading-relaxed group-hover/item:text-[var(--text-primary)] transition-colors">
+                            {String(s)}
+                          </span>
                         </li>
                       ))}
                     </ul>
@@ -302,23 +312,36 @@ const IPCGuide: React.FC = () => {
 
                 {/* Landmark Cases */}
                 {result.landmark_cases?.length > 0 && (
-                  <div className="bg-[var(--bg-primary)]/50 rounded-[2rem] p-8 border border-[var(--border-subtle)] shadow-sm relative hover:border-[#C9A84C]/30 transition-colors">
-                    <div className="absolute top-6 right-6">
+                  <div className="bg-[var(--bg-secondary)] rounded-[2.5rem] p-8 border border-amber-500/10 shadow-[0_4px_20px_rgba(245,158,11,0.05)] relative overflow-hidden group hover:border-amber-500/30 transition-all duration-500">
+                    <div className="absolute -right-4 -top-4 w-24 h-24 bg-amber-500/5 rounded-full blur-2xl group-hover:bg-amber-500/10 transition-colors"></div>
+                    <div className="absolute top-6 right-6 z-10">
                       <VoiceOutput text={result.landmark_cases.join('. ')} />
                     </div>
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="w-8 h-8 rounded-lg bg-[#C9A84C]/10 flex items-center justify-center border border-[#C9A84C]/20">
-                        <Gavel size={16} className="text-[#C9A84C]" />
+                    <div className="flex items-center gap-3 mb-8 relative z-10">
+                      <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20 shadow-sm">
+                        <Gavel size={20} className="text-amber-500" />
                       </div>
-                      <h3 className="font-bold text-lg text-[var(--text-primary)]">{t('ipc.result.landmark_cases')}</h3>
+                      <h3 className="font-black text-xl text-[var(--text-primary)] tracking-tight">{t('ipc.result.landmark_cases')}</h3>
                     </div>
-                    <ul className="space-y-4">
-                      {result.landmark_cases.map((c: string, i: number) => (
-                        <li key={i} className="flex items-start gap-3 text-sm text-[var(--text-secondary)] font-medium leading-relaxed group">
-                          <Book size={16} className="text-[#C9A84C]/50 mt-0.5 shrink-0 group-hover:text-[#C9A84C] transition-colors" />
-                          <span className="group-hover:text-[var(--text-primary)] transition-colors">{String(c)}</span>
-                        </li>
-                      ))}
+                    <ul className="space-y-4 relative z-10">
+                      {result.landmark_cases.map((c: string, i: number) => {
+                        const [caseName, principle] = String(c).split(' — ');
+                        return (
+                          <li key={i} className="flex flex-col gap-2 p-4 rounded-2xl bg-[var(--bg-primary)] border border-[var(--border-subtle)] hover:border-amber-500/40 transition-all group/item shadow-sm hover:shadow-md">
+                            <div className="flex items-center gap-2">
+                              <div className="w-5 h-5 rounded bg-amber-500/10 flex items-center justify-center">
+                                <Scale size={12} className="text-amber-500" />
+                              </div>
+                              <span className="font-black text-xs text-amber-600 uppercase tracking-wider">{caseName}</span>
+                            </div>
+                            {principle && (
+                              <span className="text-[var(--text-secondary)] font-semibold text-sm leading-relaxed group-hover/item:text-[var(--text-primary)] transition-colors pl-7">
+                                {principle}
+                              </span>
+                            )}
+                          </li>
+                        );
+                      })}
                     </ul>
                   </div>
                 )}

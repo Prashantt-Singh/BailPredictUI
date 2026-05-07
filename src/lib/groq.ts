@@ -45,13 +45,10 @@ export const explainWithGroq = async (caseData: any, predictionResult: any) => {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      model: "llama-3.1-70b-versatile",
+      model: "llama-3.3-70b-versatile",
       messages: [
-        { role: "system", content: "You are a legal expert specializing in Indian Bail Law. Return only JSON." },
         { role: "user", content: prompt }
-      ],
-      temperature: 0.2,
-      response_format: { type: "json_object" }
+      ]
     })
   });
 
