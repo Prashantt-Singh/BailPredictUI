@@ -52,7 +52,7 @@ export const predictBailGemini = async (caseData: unknown) => {
     };
   }
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
     const prompt = `
       You are an Indian bail prediction AI trained on court judgments.
       Return ONLY raw JSON no markdown no backticks.
@@ -102,7 +102,7 @@ export const generateArguments = async (caseData: unknown): Promise<GeneratedArg
     ];
   }
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
     const prompt = `
       You are an expert Indian criminal defense lawyer.
       Generate 4 strong bail arguments.
@@ -142,7 +142,7 @@ export const generateArguments = async (caseData: unknown): Promise<GeneratedArg
 
 export const explainIPC = async (section: string) => {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
     const prompt = `
       Explain IPC Section ${section} for Indian lawyers.
       Return ONLY raw JSON no markdown no backticks.
@@ -177,7 +177,7 @@ export const explainIPC = async (section: string) => {
 
 export const generateDraft = async (caseData: unknown, argumentsList: unknown[]) => {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
     const cd = (caseData ?? {}) as Record<string, unknown>;
     const prompt = `
       Generate a formal Indian bail application letter.
@@ -298,7 +298,7 @@ export const explainBailDecision = async (caseData: unknown, predictionResult: u
     };
   }
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
     const cd = (caseData ?? {}) as Record<string, unknown>;
     const pr = (predictionResult ?? {}) as Record<string, unknown>;
     const prompt = `
@@ -363,6 +363,78 @@ export interface VoiceParsedData {
   description: string;
 }
 
+async function parseVoiceWithGroq(transcript: string, lang: 'en' | 'hi', apiKey: string): Promise<any> {
+  const hindiNote = lang === 'hi' ? 'The user spoke in Hindi. Map Hindi legal terms to the correct English values (e.g. "हत्या" -> "Section 302 — Murder").' : '';
+  const ipcOptions = [
+    "Section 302 — Murder", "Section 304 — Culpable Homicide", "Section 304B — Dowry Death",
+    "Section 306 — Abetment of Suicide", "Section 307 — Attempt to Murder",
+    "Section 323 — Voluntarily Causing Hurt", "Section 324 — Hurt by Dangerous Weapons",
+    "Section 325 — Grievous Hurt", "Section 354 — Assault on Woman",
+    "Section 363 — Kidnapping", "Section 364 — Kidnapping for Ransom",
+    "Section 366 — Abduction of Woman", "Section 376 — Rape",
+    "Section 378 — Theft", "Section 379 — Theft (Punishment)", "Section 380 — Theft in Dwelling",
+    "Section 384 — Extortion", "Section 392 — Robbery", "Section 395 — Dacoity",
+    "Section 406 — Criminal Breach of Trust", "Section 409 — Breach of Trust by Public Servant",
+    "Section 415 — Cheating", "Section 420 — Cheating and Fraud",
+    "Section 427 — Mischief causing Damage", "Section 447 — Criminal Trespass",
+    "Section 448 — House Trespass", "Section 498A — Cruelty by Husband",
+    "Section 504 — Intentional Insult", "Section 506 — Criminal Intimidation",
+    "Section 509 — Insulting Modesty of Woman", "NDPS Act — Drug Offense",
+    "PC Act — Prevention of Corruption"
+  ];
+
+  try {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: "llama-3.1-70b-versatile",
+        messages: [
+          { 
+            role: "system", 
+            content: `You are a legal form parser. Extract details into JSON. ${hindiNote}
+            IMPORTANT: Use the EXACT strings provided for the keys.
+            
+            Valid IPC Sections: ${JSON.stringify(ipcOptions)}
+            Valid Bail Types: ["Regular", "Anticipatory", "Default", "Interim"]
+            Valid Courts: ["Magistrate Court", "Sessions Court", "District Court", "High Court", "Supreme Court"]
+            
+            Instructions:
+            - If user mentions a number like "302" or "420", map it to the EXACT full string from the IPC Sections list.
+            - "Mera client 25 saal ka hai" -> accused_age: 25
+            - "Section 376 mein hai" -> ipc_section: "Section 376 — Rape"
+            - "High court" or "Uch nyayalaya" -> court: "High Court"
+            - If custody is mentioned in days/months, convert to number.
+            
+            JSON structure: { 
+              "ipc_section": (EXACT string from list), 
+              "bail_type": (EXACT string from list), 
+              "court": (EXACT string from list),
+              "custody_months": number, 
+              "accused_age": number, 
+              "first_offender": "Yes"|"No", 
+              "prior_record": "Yes"|"No" 
+            }` 
+          },
+          { role: "user", content: `Extract data from this legal transcript: ${transcript}` }
+        ],
+        temperature: 0.1
+      })
+    });
+
+    if (!response.ok) return null;
+    const result = await response.json();
+    const content = result.choices[0].message.content;
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    return jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(content);
+  } catch (err) {
+    return null;
+  }
+}
+
 export const parseVoiceTranscript = async (transcript: string, lang: 'en' | 'hi'): Promise<VoiceParsedData> => {
   const fallback: VoiceParsedData = {
     ipc_section: null, bail_type: null, court: null,
@@ -370,7 +442,15 @@ export const parseVoiceTranscript = async (transcript: string, lang: 'en' | 'hi'
     prior_record: null, description: transcript
   };
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
+    // 1. Try Groq first for extreme speed
+    const groqKey = import.meta.env.VITE_GROQ_API_KEY;
+    if (groqKey) {
+      const groqResult = await parseVoiceWithGroq(transcript, lang, groqKey);
+      if (groqResult) return { ...fallback, ...groqResult, description: transcript };
+    }
+
+    // 2. Fallback to Gemini
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
     const hindiNote = lang === 'hi' ? `
 The input is in Hindi. Understand these Hindi legal terms:
 जमानत = bail, हत्या = murder, बलात्कार = rape, चोरी = theft, धोखाधड़ी = fraud,
@@ -435,4 +515,5 @@ Matching rules:
     return fallback;
   }
 };
+
 

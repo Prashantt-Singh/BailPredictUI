@@ -54,6 +54,24 @@ const FIELD_LABELS: Record<string, string> = {
   prior_record: 'Prior Record',
 };
 
+const IPC_OPTIONS = [
+  "Section 302 — Murder", "Section 304 — Culpable Homicide", "Section 304B — Dowry Death",
+  "Section 306 — Abetment of Suicide", "Section 307 — Attempt to Murder",
+  "Section 323 — Voluntarily Causing Hurt", "Section 324 — Hurt by Dangerous Weapons",
+  "Section 325 — Grievous Hurt", "Section 354 — Assault on Woman",
+  "Section 363 — Kidnapping", "Section 364 — Kidnapping for Ransom",
+  "Section 366 — Abduction of Woman", "Section 376 — Rape",
+  "Section 378 — Theft", "Section 379 — Theft (Punishment)", "Section 380 — Theft in Dwelling",
+  "Section 384 — Extortion", "Section 392 — Robbery", "Section 395 — Dacoity",
+  "Section 406 — Criminal Breach of Trust", "Section 409 — Breach of Trust by Public Servant",
+  "Section 415 — Cheating", "Section 420 — Cheating and Fraud",
+  "Section 427 — Mischief causing Damage", "Section 447 — Criminal Trespass",
+  "Section 448 — House Trespass", "Section 498A — Cruelty by Husband",
+  "Section 504 — Intentional Insult", "Section 506 — Criminal Intimidation",
+  "Section 509 — Insulting Modesty of Woman", "NDPS Act — Drug Offense",
+  "PC Act — Prevention of Corruption"
+];
+
 const SmartVoiceAutoFill: React.FC<Props> = ({ onAutoFill }) => {
   const [isSupported] = useState(() => {
     if (typeof window === 'undefined') return false;
@@ -78,16 +96,52 @@ const SmartVoiceAutoFill: React.FC<Props> = ({ onAutoFill }) => {
 
   const handleTranscript = useCallback(async (transcript: string) => {
     setStep('parsing');
+    console.log("🗣️ Voice Transcript:", transcript);
+
+    // 1. LOCAL BULLETPROOF PARSING (Works even without API)
+    const localParsed: Partial<VoiceParsedData> = {
+      ipc_section: null, bail_type: null, court: null,
+      custody_months: null, accused_age: null,
+      first_offender: null, prior_record: null,
+      description: transcript
+    };
+
+    // Regex magic for common numbers and words (handling misheard words like "mail" for "bail")
+    const ageMatch = transcript.match(/ages?\s*(?:is|was)?\s*(\d+)/i) || transcript.match(/(\d+)\s*(year|saal|sal|age|umra)/i);
+    if (ageMatch) localParsed.accused_age = parseInt(ageMatch[1]);
+
+    const ipcMatch = transcript.match(/(section|dhaara|dhara)\s*(\d+)/i) || transcript.match(/(\d+)/);
+    if (ipcMatch) localParsed.ipc_section = ipcMatch[ipcMatch.length - 1];
+
+    if (/high\s*court|uch\s*nyayalaya/i.test(transcript)) localParsed.court = "High Court";
+    if (/session|satra/i.test(transcript)) localParsed.court = "Sessions Court";
+    if (/magistrate/i.test(transcript)) localParsed.court = "Magistrate Court";
+    
+    if (/anticipatory|agrim/i.test(transcript)) localParsed.bail_type = "Anticipatory";
+    if (/regular|niyamit|mail/i.test(transcript)) localParsed.bail_type = "Regular";
+
+    if (/first\s*offender|pehli\s*baar|first\s*of\s*under/i.test(transcript)) localParsed.first_offender = "No"; // "not the first" -> No
+    if (/not\s*the\s*first/i.test(transcript)) localParsed.first_offender = "No";
+    if (/prior\s*record|purana\s*case/i.test(transcript)) localParsed.prior_record = "Yes";
+
+    // 2. AI PARSING (Enhances the local result)
     let parsed: VoiceParsedData;
     try {
-      parsed = await parseVoiceTranscript(transcript, lang);
-    } catch {
-      parsed = {
-        ipc_section: null, bail_type: null, court: null,
-        custody_months: null, accused_age: null,
-        first_offender: null, prior_record: null,
-        description: transcript
-      };
+      const aiResult = await parseVoiceTranscript(transcript, lang);
+      console.log("🤖 AI Parsed Result:", aiResult);
+      
+      // SMART MERGE: Only let AI overwrite if it actually found something (not null)
+      parsed = { ...localParsed } as VoiceParsedData;
+      if (aiResult.ipc_section) parsed.ipc_section = aiResult.ipc_section;
+      if (aiResult.bail_type) parsed.bail_type = aiResult.bail_type;
+      if (aiResult.court) parsed.court = aiResult.court;
+      if (aiResult.custody_months) parsed.custody_months = aiResult.custody_months;
+      if (aiResult.accused_age) parsed.accused_age = aiResult.accused_age;
+      if (aiResult.first_offender) parsed.first_offender = aiResult.first_offender;
+      if (aiResult.prior_record) parsed.prior_record = aiResult.prior_record;
+    } catch (e) {
+      console.warn("AI Parsing failed, using local rules only:", e);
+      parsed = localParsed as VoiceParsedData;
     }
 
     // Map parsed fields to form data
@@ -95,7 +149,12 @@ const SmartVoiceAutoFill: React.FC<Props> = ({ onAutoFill }) => {
     const filledFields: string[] = [];
     const ALL_FIELDS = ['ipc', 'bail_type', 'court', 'custody', 'age', 'first_offender', 'prior_record'];
 
-    if (parsed.ipc_section) { data.ipc = parsed.ipc_section; filledFields.push('ipc'); }
+    if (parsed.ipc_section) { 
+      // Try to find the exact match in our list
+      const exactMatch = IPC_OPTIONS.find(opt => opt.toLowerCase().includes(String(parsed.ipc_section).toLowerCase())) || parsed.ipc_section;
+      data.ipc = exactMatch; 
+      filledFields.push('ipc'); 
+    }
     if (parsed.bail_type) { data.bail_type = parsed.bail_type; filledFields.push('bail_type'); }
     if (parsed.court) { data.court = parsed.court; filledFields.push('court'); }
     if (parsed.custody_months !== null) { data.custody = String(parsed.custody_months); filledFields.push('custody'); }

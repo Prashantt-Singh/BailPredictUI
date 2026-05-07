@@ -162,9 +162,11 @@ const Predict: React.FC = () => {
    };
 
    const handleAutoFill = useCallback((result: AutoFillResult) => {
+      console.log("📥 AutoFill Received Data:", result);
       setFormData(prev => {
         const next = { ...prev };
         if (result.data.ipc) {
+          console.log("📍 Setting IPC to:", result.data.ipc);
           next.ipc = result.data.ipc;
           next.crime = IPC_CRIME_MAP[result.data.ipc] || prev.crime;
         }
