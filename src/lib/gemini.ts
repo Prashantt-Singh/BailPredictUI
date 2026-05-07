@@ -3,7 +3,7 @@ import i18n from '../i18n';
 import { explainWithGroq } from './groq';
 
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-const CATBOOST_URL = import.meta.env.VITE_CATBOOST_API_URL;
+// const CATBOOST_URL = import.meta.env.VITE_CATBOOST_API_URL;
 const genAI = new GoogleGenerativeAI(API_KEY);
 
 if (API_KEY) {
