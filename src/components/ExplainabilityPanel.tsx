@@ -126,7 +126,7 @@ const ExplainabilityPanel: React.FC<ExplainabilityPanelProps> = ({ data, loading
                             transition={{ duration: 1, delay: 0.2 + (idx * 0.1) }}
                           />
                         </div>
-                        <p className="text-xs text-[var(--text-secondary)] mt-2 leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity">{factor.description}</p>
+                        <p className="text-sm text-[var(--text-secondary)] mt-2 leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity">{factor.description}</p>
                       </div>
                     ))}
                   </div>
@@ -155,7 +155,7 @@ const ExplainabilityPanel: React.FC<ExplainabilityPanelProps> = ({ data, loading
                             transition={{ duration: 1, delay: 0.2 + (idx * 0.1) }}
                           />
                         </div>
-                        <p className="text-xs text-[var(--text-secondary)] mt-2 leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity">{factor.description}</p>
+                        <p className="text-sm text-[var(--text-secondary)] mt-2 leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity">{factor.description}</p>
                       </div>
                     ))}
                   </div>
@@ -163,15 +163,15 @@ const ExplainabilityPanel: React.FC<ExplainabilityPanelProps> = ({ data, loading
               </div>
 
               {/* Judge's Note */}
-              <div className="bg-[#1e1a12]/40 border border-[#C9A84C]/20 p-5 rounded-2xl flex items-start gap-4 w-full relative overflow-hidden">
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#C9A84C]/50"></div>
-                <div className="w-8 h-8 rounded-full bg-[#C9A84C]/10 flex items-center justify-center shrink-0 border border-[#C9A84C]/20 mt-0.5">
-                  <Info size={16} className="text-[#C9A84C]" />
+              <div className="bg-[var(--gold)]/10 dark:bg-[#1e1a12]/40 border border-[#C9A84C]/30 p-6 rounded-2xl flex items-start gap-5 w-full relative overflow-hidden shadow-sm">
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#C9A84C]"></div>
+                <div className="w-10 h-10 rounded-xl bg-[#C9A84C]/15 flex items-center justify-center shrink-0 border border-[#C9A84C]/30 mt-0.5">
+                  <Info size={20} className="text-[#C9A84C]" />
                 </div>
                 <div>
-                  <span className="text-[10px] font-black text-[#C9A84C] uppercase tracking-widest block mb-1">{t('explain.judge_note')}</span>
-                  <p className="text-[10px] font-bold text-[#C9A84C]/60 mb-2 leading-relaxed">{t('explain.judge_note_desc')}</p>
-                  <p className="text-sm font-medium text-[var(--text-primary)]/80 italic leading-relaxed">{data.judge_note}</p>
+                  <span className="text-[11px] font-black text-[#C9A84C] uppercase tracking-[2px] block mb-1.5">{t('explain.judge_note')}</span>
+                  <p className="text-[11px] font-bold text-[var(--text-secondary)] mb-3 leading-relaxed opacity-70">{t('explain.judge_note_desc')}</p>
+                  <p className="text-[15px] font-medium text-[var(--text-primary)] italic leading-relaxed">{data.judge_note}</p>
                 </div>
               </div>
 

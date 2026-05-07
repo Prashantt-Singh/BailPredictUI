@@ -541,7 +541,7 @@ const Predict: React.FC = () => {
                               <h3 className="text-xl font-black text-[var(--text-primary)] flex items-center gap-3">
                                  <div className="flex flex-col">
                                     <span className="text-xl font-black text-[var(--text-primary)]">{t('predict.result.arguments_title')}</span>
-                                    <p className="text-xs font-bold text-[var(--text-muted)] mt-1">{t('predict.result.arguments_desc')}</p>
+                                    <p className="text-sm font-bold text-[var(--text-secondary)] mt-1">{t('predict.result.arguments_desc')}</p>
                                  </div>
                               </h3>
                               <VoiceOutput text={argumentsList.map((a, i) => `Argument ${i+1}. ${a.ground}. ${a.argument}`).join('. ')} />
@@ -555,7 +555,7 @@ const Predict: React.FC = () => {
                                       <span className="text-xs font-black bg-[#C9A84C]/10 text-[#C9A84C] px-2 py-0.5 rounded border border-[#C9A84C]/20">{idx + 1}</span>
                                       {arg.ground}
                                     </h4>
-                                    <p className="text-sm font-medium leading-[1.8] text-[var(--text-secondary)] mb-5">{arg.argument}</p>
+                                    <p className="text-[15px] font-medium leading-[1.8] text-[var(--text-primary)] mb-5">{arg.argument}</p>
                                     
                                     <div className="flex items-start gap-2 pt-4 border-t border-[var(--border-subtle)]/50">
                                        <div className="mt-0.5">
