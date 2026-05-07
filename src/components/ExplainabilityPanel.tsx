@@ -162,18 +162,7 @@ const ExplainabilityPanel: React.FC<ExplainabilityPanelProps> = ({ data, loading
                 </div>
               </div>
 
-              {/* Judge's Note */}
-              <div className="bg-[var(--gold)]/10 dark:bg-[#1e1a12]/40 border border-[#C9A84C]/30 p-6 rounded-2xl flex items-start gap-5 w-full relative overflow-hidden shadow-sm">
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#C9A84C]"></div>
-                <div className="w-10 h-10 rounded-xl bg-[#C9A84C]/15 flex items-center justify-center shrink-0 border border-[#C9A84C]/30 mt-0.5">
-                  <Info size={20} className="text-[#C9A84C]" />
-                </div>
-                <div>
-                  <span className="text-[11px] font-black text-[#C9A84C] uppercase tracking-[2px] block mb-1.5">{t('explain.judge_note')}</span>
-                  <p className="text-[11px] font-bold text-[var(--text-secondary)] mb-3 leading-relaxed opacity-70">{t('explain.judge_note_desc')}</p>
-                  <p className="text-[15px] font-medium text-[var(--text-primary)] italic leading-relaxed">{data.judge_note}</p>
-                </div>
-              </div>
+
 
             </div>
           </motion.div>
