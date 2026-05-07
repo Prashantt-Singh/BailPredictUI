@@ -93,14 +93,13 @@ const CaseDetails: React.FC = () => {
 
   const isGranted = caseData?.likelihood?.toLowerCase() === 'granted';
   const hearingStatus = caseData?.hearing_date ? getHearingStatus(caseData.hearing_date) : null;
-  const ipcShort = caseData.ipc_section?.split('—')[0]?.replace('Section', '').trim() || caseData.ipc_section;
+  const ipcShort = caseData?.ipc_section?.split('—')[0]?.replace('Section', '').trim() || caseData?.ipc_section || '—';
 
   // ── Case detail rows ───────────────────────────────────────
-  const rows = [
     { icon: <FileText size={16} className="text-[#C9A84C]" />, label: 'IPC Section',    value: ipcShort },
-    { icon: <Scale     size={16} className="text-[#C9A84C]" />, label: 'Offense / Crime', value: caseData.offense },
-    { icon: <Gavel     size={16} className="text-[#C9A84C]" />, label: 'Court',          value: caseData.court },
-    { icon: <Clock     size={16} className="text-[#C9A84C]" />, label: 'Saved On',       value: new Date(caseData.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) },
+    { icon: <Scale     size={16} className="text-[#C9A84C]" />, label: 'Offense / Crime', value: caseData?.offense || '—' },
+    { icon: <Gavel     size={16} className="text-[#C9A84C]" />, label: 'Court',          value: caseData?.court || '—' },
+    { icon: <Clock     size={16} className="text-[#C9A84C]" />, label: 'Saved On',       value: caseData?.created_at ? new Date(caseData.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—' },
   ];
 
   return (
@@ -137,7 +136,7 @@ const CaseDetails: React.FC = () => {
             {/* Confidence circle */}
             <div className={`w-24 h-24 rounded-2xl flex flex-col items-center justify-center border-2 shrink-0 ${isGranted ? 'bg-emerald-50 border-emerald-100' : 'bg-red-50 border-red-100'}`}>
               <span className={`text-3xl font-black ${isGranted ? 'text-emerald-600' : 'text-red-500'}`}>
-                {Math.round(caseData.bail_probability ?? 0)}%
+                {Math.round(caseData?.bail_probability ?? 0)}%
               </span>
               <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mt-0.5">confidence</span>
             </div>
@@ -148,7 +147,7 @@ const CaseDetails: React.FC = () => {
                   ? <CheckCircle2 size={18} className="text-emerald-500" />
                   : <XCircle size={18} className="text-red-500" />}
                 <span className={`font-black text-2xl ${isGranted ? 'text-emerald-600' : 'text-red-500'}`}>
-                  Bail {caseData.likelihood}
+                  Bail {caseData?.likelihood || '—'}
                 </span>
               </div>
               <p className="text-sm text-[var(--text-muted)] font-medium">
@@ -156,7 +155,7 @@ const CaseDetails: React.FC = () => {
               </p>
 
               {/* Hearing badge */}
-              {hearingStatus && (
+              {hearingStatus && caseData?.hearing_date && (
                 <div className={`mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-black ${hearingStatus.cls}`}>
                   <Calendar size={12} /> Hearing: {new Date(caseData.hearing_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })} — {hearingStatus.label}
                 </div>
@@ -224,9 +223,9 @@ const CaseDetails: React.FC = () => {
             onClick={() => navigate('/predict', {
               state: {
                 prefilled: true,
-                offense_type: caseData.ipc_section,
-                crime: caseData.offense,
-                court: caseData.court,
+                offense_type: caseData?.ipc_section,
+                crime: caseData?.offense,
+                court: caseData?.court,
               }
             })}
             className="flex-1 h-12 bg-[var(--btn-primary-bg)] text-[var(--btn-primary-text)] text-sm font-black rounded-xl flex items-center justify-center gap-2 hover:bg-[var(--btn-primary-hover)] hover:scale-[1.01] transition-all shadow-lg shadow-black/10"

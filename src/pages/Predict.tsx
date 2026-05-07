@@ -104,7 +104,7 @@ const Predict: React.FC = () => {
       prediction?: string;
       confidence: number;
       likelihood?: string;
-      source?: string;
+      source?: React.ReactNode;
    } | null>(null);
    const [argumentsList, setArgumentsList] = useState<Array<{
       ground: string;
@@ -118,7 +118,7 @@ const Predict: React.FC = () => {
    const [hearingDate, setHearingDate] = useState('');
    const [savingCase, setSavingCase] = useState(false);
    const [saveError, setSaveError] = useState('');
-   const [explanationData, setExplanationData] = useState<unknown>(null);
+   const [explanationData, setExplanationData] = useState<any>(null);
    const [explanationLoading, setExplanationLoading] = useState(false);
    const [voiceFilledFields, setVoiceFilledFields] = useState<string[]>([]);
 
@@ -285,7 +285,7 @@ const Predict: React.FC = () => {
    const inputClass = "w-full bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-[var(--text-primary)] rounded-lg p-3 text-sm focus:outline-none focus:border-[var(--gold)] focus:ring-1 focus:ring-[var(--gold)] transition-colors shadow-sm";
    const labelClass = "block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2";
 
-   const isGranted = String(predictionResult?.prediction || '').toLowerCase() === 'granted' || predictionResult?.prediction === 1;
+   const isGranted = String(predictionResult?.prediction || '').toLowerCase() === 'granted' || Number(predictionResult?.prediction) === 1;
 
    return (
       <>

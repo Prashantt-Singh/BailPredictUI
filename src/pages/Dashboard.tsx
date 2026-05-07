@@ -88,6 +88,9 @@ const Dashboard: React.FC = () => {
     id: string | number;
     total_predictions?: number | null;
     arguments_generated?: number | null;
+    avg_accuracy?: number | null;
+    ipc_sections?: number | null;
+    [key: string]: any;
   };
 
   const [savedCases, setSavedCases] = useState<CaseRow[]>([]);
@@ -286,7 +289,7 @@ const Dashboard: React.FC = () => {
                 {statsLoading ? (
                   <span className="inline-block w-20 h-10 bg-[var(--bg-surface)] rounded-lg animate-pulse" />
                 ) : statsInView && liveStats ? (
-                  <Counter end={Number(liveStats[s.key]) || 0} suffix={s.suffix} duration={s.duration} />
+                  <Counter end={Number(liveStats[s.key as keyof LiveStatsRow]) || 0} suffix={s.suffix} duration={s.duration} />
                 ) : '0'}
               </span>
               <span className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-[2px]">{s.label}</span>
@@ -442,7 +445,7 @@ const Dashboard: React.FC = () => {
                   </div>
                   <div className="space-y-3">
                     {upcomingHearings.map((c, i) => {
-                      const badge = getHearingBadge(c.hearing_date);
+                      const badge = getHearingBadge(c.hearing_date || '');
                       const ipcShort = c.ipc_section?.split('—')[0]?.replace('Section','').trim() || c.ipc_section;
                       return (
                         <motion.div
@@ -460,7 +463,7 @@ const Dashboard: React.FC = () => {
                             </div>
                             <div>
                               <p className="font-black text-[var(--text-primary)] text-sm">{c.offense}</p>
-                              <p className="text-xs text-[var(--text-muted)] font-medium mt-0.5">{ipcShort} · {new Date(c.hearing_date).toLocaleDateString(i18n.language === 'hi' ? 'hi-IN' : 'en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                              <p className="text-xs text-[var(--text-muted)] font-medium mt-0.5">{ipcShort} · {new Date(c.hearing_date || '').toLocaleDateString(i18n.language === 'hi' ? 'hi-IN' : 'en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
                             </div>
                           </div>
                           <span className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg ${badge.color}`}>
