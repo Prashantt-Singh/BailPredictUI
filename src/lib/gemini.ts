@@ -3,7 +3,7 @@ import i18n from '../i18n';
 import { explainWithGroq } from './groq';
 
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-const XGBOOST_URL = import.meta.env.VITE_XGBOOST_API_URL;
+const CATBOOST_URL = import.meta.env.VITE_CATBOOST_API_URL;
 const genAI = new GoogleGenerativeAI(API_KEY);
 
 if (API_KEY) {
@@ -210,7 +210,7 @@ export const predictBail = async (caseData: unknown) => {
     
     const cd = (caseData ?? {}) as Record<string, unknown>;
     const response = await fetch(
-      XGBOOST_URL,
+      CATBOOST_URL,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -250,10 +250,10 @@ export const predictBail = async (caseData: unknown) => {
       confidence: confidence,
       likelihood: confidence > 70 ? 'HIGH' 
                 : confidence > 40 ? 'MODERATE' : 'LOW',
-      source: 'Custom XGBoost'
+      source: 'Custom CatBoost'
     };
   } catch (error) {
-    console.warn('XGBoost failed, using Gemini fallback:', error);
+    console.warn('CatBoost failed, using Gemini fallback:', error);
     try {
       const result = await predictBailGemini(caseData);
       return { ...result, source: 'Gemini' };
