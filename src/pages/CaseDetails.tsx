@@ -96,6 +96,7 @@ const CaseDetails: React.FC = () => {
   const ipcShort = caseData?.ipc_section?.split('—')[0]?.replace('Section', '').trim() || caseData?.ipc_section || '—';
 
   // ── Case detail rows ───────────────────────────────────────
+  const rows = [
     { icon: <FileText size={16} className="text-[#C9A84C]" />, label: 'IPC Section',    value: ipcShort },
     { icon: <Scale     size={16} className="text-[#C9A84C]" />, label: 'Offense / Crime', value: caseData?.offense || '—' },
     { icon: <Gavel     size={16} className="text-[#C9A84C]" />, label: 'Court',          value: caseData?.court || '—' },
