@@ -19,7 +19,7 @@ import {
   LayoutDashboard
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { predictBail, generateArguments, explainBailDecision, parseLegalDocument, generateAnalysisFromOcr, analyzePdfDirectly, getPdfDemoFallbackAnalysis } from '../lib/gemini';
+import { predictBail, generateArguments, explainBailDecision, parseLegalDocument, generateAnalysisFromOcr, analyzePdfDirectly } from '../lib/gemini';
 import type { VoiceParsedData } from '../lib/gemini';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/useAuth';
